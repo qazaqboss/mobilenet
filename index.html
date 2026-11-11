@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Анатомия сотовой связи</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Интерактивный 3D-атлас: как сигнал идёт от антенны до антенны, из чего состоят вышка, смартфон и спутник, и почему возможен перехват сотовой связи.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;1,500;1,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: anatomical atlas — each "plate" pairs a large x-ray 3D specimen with a numbered legend, like a medical atlas page. */
+:root{
+  color-scheme: dark;
+  --ink:#050a11;          /* film background */
+  --plate:#09131e;        /* panel surface */
+  --plate-2:#0d1a28;
+  --rule:rgba(127,227,255,.14);
+  --fg:#d8e3ec;           /* bone */
+  --muted:#8297aa;
+  --cyan:#7fe3ff;         /* x-ray phosphor: structure */
+  --amber:#ffb547;        /* RF energy */
+  --teal:#3ad6b0;         /* fibre / data */
+  --red:#ff5d5d;          /* threat */
+  --violet:#a594ff;
+  --f-display:"Cormorant", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --gutter:max(16px, env(safe-area-inset-left, 0px));
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--ink);color:var(--fg);
+  font:16px/1.6 var(--f-body);
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(127,227,255,.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(255,181,71,.05), transparent 60%);
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--ink)}
+a{color:var(--cyan)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;letter-spacing:.005em}
+p{margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.mono{font-family:var(--f-mono)}
+.eyebrow{font:500 12px/1.3 var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.eyebrow b{color:var(--cyan);font-weight:500}
+
+/* nav */
+nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(5,10,17,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+nav.top .wrap{display:flex;align-items:center;gap:20px;height:54px}
+nav.top .brand{font:600 20px/1 var(--f-display);font-style:italic;color:var(--fg);text-decoration:none;white-space:nowrap}
+nav.top ul{display:flex;gap:4px;list-style:none;margin:0;padding:0;overflow-x:auto;scrollbar-width:none;min-width:0}
+nav.top ul::-webkit-scrollbar{display:none}
+nav.top li a{display:block;padding:6px 10px;border-radius:6px;font:500 12px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted);text-decoration:none;white-space:nowrap}
+nav.top li a:hover,nav.top li a:focus-visible{color:var(--fg);background:var(--plate-2)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+/* hero */
+.hero{position:relative;border-bottom:1px solid var(--rule)}
+.hero .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:24px;align-items:center;padding-block:48px 32px}
+.hero h1{font-size:clamp(46px,7.4vw,104px);line-height:.92;font-weight:500}
+.hero h1 em{color:var(--cyan);font-style:italic}
+.hero .lead{margin-top:22px;max-width:56ch;color:#b9c7d3;font-size:18px}
+.hero-stage{position:relative;height:min(72vh,680px);min-height:380px;overflow:hidden;min-width:0}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-top:30px}
+.facts div{background:var(--ink);padding:14px 14px 12px}
+.facts b{display:block;font:500 22px/1.1 var(--f-mono);color:var(--amber);font-variant-numeric:tabular-nums}
+.facts span{display:block;margin-top:6px;font-size:12.5px;line-height:1.35;color:var(--muted)}
+
+/* plate */
+section.plate{padding-block:84px 24px;border-bottom:1px solid var(--rule)}
+.plate-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 48px;align-items:end;margin-bottom:28px}
+.plate-head h2{font-size:clamp(36px,5vw,64px);line-height:1;font-weight:500;margin-top:10px}
+.plate-head h2 em{font-style:italic;color:var(--cyan)}
+.plate-head p{color:#b4c2ce;max-width:62ch}
+.specimen{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:14px;overflow:hidden;background:linear-gradient(180deg,rgba(13,26,40,.6),rgba(5,10,17,.6))}
+.stage{position:relative;height:clamp(420px,68vh,720px);min-width:0;overflow:hidden;
+  background:
+    linear-gradient(var(--rule) 1px, transparent 1px) 0 0/48px 48px,
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px) 0 0/48px 48px;
+  background-color:rgba(5,10,17,.4);
+}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center, transparent 40%, rgba(5,10,17,.85) 100%)}
+.stage canvas{display:block}
+.stage .labels{position:absolute;inset:0;z-index:2}
+.stage .hint{position:absolute;left:14px;bottom:12px;z-index:3;font:11px/1 var(--f-mono);letter-spacing:.08em;color:var(--muted);pointer-events:none}
+.stage .fig{position:absolute;left:14px;top:12px;z-index:3;font:500 11px/1.3 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);pointer-events:none}
+.stage .fig b{color:var(--fg);font-weight:500}
+.side{border-left:1px solid var(--rule);padding:22px;display:flex;flex-direction:column;gap:18px;min-width:0;background:rgba(9,19,30,.7)}
+.side h3{font-size:28px;line-height:1.05;font-weight:600}
+.side .desc{color:#b9c7d3;font-size:15px;min-height:7.5em}
+.side .desc b{color:var(--fg);font-weight:600}
+.legend{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-height:320px;overflow:auto}
+.legend button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:28px 1fr;gap:10px;width:100%;padding:7px 8px;border-radius:7px;cursor:pointer;font-size:14px;line-height:1.3;color:#c2cfda}
+.legend button i{font:500 11px/20px var(--f-mono);font-style:normal;text-align:center;border:1px solid var(--rule);border-radius:50%;width:22px;height:22px;color:var(--cyan)}
+.legend button:hover,.legend button[aria-pressed="true"]{background:var(--plate-2);color:var(--fg)}
+.legend button[aria-pressed="true"] i{background:var(--cyan);color:var(--ink);border-color:var(--cyan)}
+.legend button:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+.ctrl{display:grid;gap:8px}
+.ctrl label{display:flex;justify-content:space-between;font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ctrl label output{color:var(--amber);letter-spacing:.02em}
+input[type=range]{width:100%;accent-color:var(--cyan)}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;padding:8px 12px;border:1px solid var(--rule);border-radius:8px;font:500 12px/1 var(--f-mono);letter-spacing:.04em;color:#c2cfda}
+.btn:hover{border-color:rgba(127,227,255,.4);color:var(--fg)}
+.btn[aria-pressed="true"]{background:var(--cyan);color:var(--ink);border-color:var(--cyan)}
+.btn.danger[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#1a0505}
+.btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.metrics div{border:1px solid var(--rule);border-radius:8px;padding:9px 10px}
+.metrics b{display:block;font:500 16px/1.15 var(--f-mono);color:var(--amber);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.metrics span{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.3}
+
+/* CSS2D tags */
+.tag{width:8px;height:8px;pointer-events:none;transition:opacity .3s}
+.tag::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.tag span{position:absolute;left:14px;top:50%;transform:translateY(-50%);white-space:nowrap;font:500 11px/1 var(--f-mono);letter-spacing:.04em;color:var(--fg);padding:4px 7px;border:1px solid rgba(127,227,255,.3);background:rgba(5,10,17,.78);border-radius:5px}
+.tag span i{font-style:normal;color:var(--cyan);margin-right:6px}
+.tag.left span{left:auto;right:14px}
+.tag.amber::before{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+.tag.amber span{border-color:rgba(255,181,71,.4)}
+.tag.red::before{background:var(--red);box-shadow:0 0 12px var(--red)}
+.tag.red span{border-color:rgba(255,93,93,.5);color:#ffd9d9}
+.tag.dim{opacity:.28}
+.tag.hide{opacity:0}
+
+/* prose */
+.prose{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:40px}
+.prose article{min-width:0}
+.prose h4{font:600 13px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin:0 0 10px}
+.prose p,.prose li{color:#b4c2ce;font-size:15px}
+.prose p+p{margin-top:10px}
+.prose ul{margin:8px 0 0;padding-left:18px}
+.prose li+li{margin-top:4px}
+.prose b{color:var(--fg);font-weight:600}
+.formula{font:500 14px/1.5 var(--f-mono);color:var(--amber);background:var(--plate);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin-top:10px;overflow-x:auto;white-space:nowrap}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:12px;margin-top:28px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font:500 11px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--plate)}
+td{color:#c2cfda}
+td:first-child{font:500 15px/1.3 var(--f-mono);color:var(--cyan);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.pill{display:inline-block;font:500 11px/1 var(--f-mono);padding:4px 7px;border-radius:99px;border:1px solid}
+.pill.bad{color:var(--red);border-color:rgba(255,93,93,.45)}
+.pill.mid{color:var(--amber);border-color:rgba(255,181,71,.45)}
+.pill.ok{color:var(--teal);border-color:rgba(58,214,176,.45)}
+
+/* physics instruments */
+.instruments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.inst{border:1px solid var(--rule);border-radius:14px;background:var(--plate);padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.inst h3{font-size:26px;font-weight:600;line-height:1.05}
+.inst p{font-size:14px;color:#aebccb}
+.inst canvas{width:100%;height:230px;display:block;border-radius:10px;background:var(--ink);border:1px solid var(--rule)}
+.readout{font:500 13px/1.5 var(--f-mono);color:var(--muted)}
+.readout b{color:var(--amber);font-weight:500}
+select{background:var(--ink);color:var(--fg);border:1px solid var(--rule);border-radius:6px;padding:6px 8px;font:13px var(--f-mono)}
+
+/* HUD */
+.hud{position:absolute;right:12px;top:12px;z-index:3;font:500 11.5px/1.55 var(--f-mono);color:var(--muted);background:rgba(5,10,17,.8);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;pointer-events:none;min-width:200px;font-variant-numeric:tabular-nums}
+.hud b{color:var(--fg);font-weight:500}
+.hud .c{color:var(--cyan)} .hud .a{color:var(--amber)} .hud .r{color:var(--red)}
+
+/* threat */
+.threat .plate-head h2 em{color:var(--red)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:36px}
+.card{border:1px solid var(--rule);border-radius:12px;padding:18px;background:var(--plate);min-width:0}
+.card h4{margin:0 0 8px;font:600 22px/1.1 var(--f-display);color:var(--fg)}
+.card .k{font:500 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:10px;display:block}
+.card.def .k{color:var(--teal)}
+.card p{font-size:14.5px;color:#b4c2ce}
+.card p+p{margin-top:8px}
+.note{margin-top:24px;padding:14px 16px;border:1px dashed rgba(255,181,71,.35);border-radius:10px;color:#c9b995;font-size:14px;max-width:90ch}
+
+footer{padding-block:48px 64px;color:var(--muted);font-size:13px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
+.nogl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted);font:13px var(--f-mono);z-index:4}
+
+@media (max-width: 980px){
+  .hero .grid{grid-template-columns:minmax(0,1fr)}
+  .hero-stage{height:420px;min-height:0;order:-1}
+  .plate-head{grid-template-columns:minmax(0,1fr)}
+  .specimen{grid-template-columns:minmax(0,1fr)}
+  .side{border-left:0;border-top:1px solid var(--rule)}
+  .stage{height:min(62vh,520px)}
+  .prose,.cards,.instruments{grid-template-columns:minmax(0,1fr)}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .side .desc{min-height:0}
+  .hud{min-width:0;font-size:10.5px;right:8px;top:8px}
+}
+@media (max-width: 520px){
+  .tag span{font-size:9.5px;padding:3px 5px}
+  .hero .lead{font-size:16px}
+}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+
+<nav class="top" aria-label="Разделы">
+  <div class="wrap">
+    <a class="brand" href="#top">Анатомия связи</a>
+    <ul>
+      <li><a href="#path">Путь сигнала</a></li>
+      <li><a href="#tower">Вышка</a></li>
+      <li><a href="#phone">Смартфон</a></li>
+      <li><a href="#physics">Физика</a></li>
+      <li><a href="#cells">Соты</a></li>
+      <li><a href="#satellite">Спутник</a></li>
+      <li><a href="#intercept">Перехват</a></li>
+      <li><a href="#generations">Поколения</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap grid">
+    <div>
+      <p class="eyebrow">Атлас радиосвязи · <b>7 таблиц</b> · 3D-препараты</p>
+      <h1>Анатомия <em>сотовой</em> связи</h1>
+      <p class="lead">Как голос превращается в радиоволну, проходит через вышку, оптоволокно и ядро сети и снова становится голосом за несколько десятков миллисекунд. Разбираем каждый узел, как в анатомическом атласе: от антенны в рамке смартфона до спутника на высоте 550 км. Отдельная таблица объясняет, почему связь вообще можно перехватить и как от этого защищаются.</p>
+      <div class="facts">
+        <div><b>299 792</b><span>км/с — скорость радиоволны в вакууме</span></div>
+        <div><b>16,7 см</b><span>длина волны на частоте 1800 МГц (λ = c / f)</span></div>
+        <div><b>0,2 Вт</b><span>максимум передатчика телефона, 23 dBm</span></div>
+        <div><b>40–80 Вт</b><span>типичная мощность сектора макро-БС</span></div>
+      </div>
+    </div>
+    <div class="hero-stage" id="hero-stage" aria-label="3D-модель: Земля с базовыми станциями и спутниками на орбитах"></div>
+  </div>
+</header>
+
+<!-- PLATE I: PATH -->
+<section class="plate" id="path">
+  <div class="wrap">
+    <div class="plate-head">
+      <div>
+        <p class="eyebrow">Таблица <b>I</b> · сквозной маршрут</p>
+        <h2>Путь сигнала: <em>от антенны до антенны</em></h2>
+      </div>
+      <p>Звонок — это не прямой радиоканал между двумя телефонами. Радио есть только на «последних метрах»: от вашего телефона до ближайшей вышки и от вышки до собеседника. Всё остальное — оптоволокно, коммутаторы и ядро сети оператора. Пройдите маршрут по шагам.</p>
+    </div>
+    <div class="specimen">
+      <div class="stage" id="path-stage"><div class="fig">Рис. 1 · <b>Абонент A → ядро сети → абонент B</b></div><div class="hint">↔ потяните, чтобы повернуть</div></div>
+      <aside class="side">
+        <div class="btns" id="path-steps" role="group" aria-label="Шаги маршрута"></div>
+        <h3 id="path-title">—</h3>
+        <p class="desc" id="path-desc"></p>
+        <div class="metrics" id="path-metrics"></div>
+        <div class="btns"><button class="btn" id="path-auto" aria-pressed="true">Автопоказ</button></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- PLATE II: TOWER -->
+<section class="plate" id="tower">
+  <div class="wrap">
+    <div class="plate-head">
+      <div>
+        <p class="eyebrow">Таблица <b>II</b> · базовая станция eNodeB / gNodeB</p>
+        <h2>Анатомия <em>вышки</em></h2>
+      </div>
+      <p>Вышка — это только опора. Сама «базовая станция» распределена по высоте: наверху антенны и радиоблоки, внизу — цифровой модуль обработки, питание и транспорт к ядру сети. Сдвиньте ползунок, чтобы разобрать конструкцию, и выберите узел в легенде.</p>
+    </div>
+    <div class="specimen">
+      <div class="stage" id="tower-stage"><div class="fig">Рис. 2 · <b>Макросота, 3 сектора × 120°</b></div><div class="hint">↔ поворот · ползунок справа разбирает модель</div></div>
+      <aside class="side">
+        <div class="ctrl"><label for="tower-explode">Разбор модели <output id="tower-explode-out">35%</output></label><input type="range" id="tower-explode" min="0" max="100" value="35"></div>
+        <h3 id="tower-title">Выберите узел</h3>
+        <p class="desc" id="tower-desc">Наведите или нажмите на пункт легенды: модель подсветит деталь, а здесь появится её назначение и характеристики.</p>
+        <ul class="legend" id="tower-legend"></ul>
+      </aside>
+    </div>
+    <div class="prose">
+      <article>
+        <h4>Секторы и MIMO</h4>
+        <p>Три панели смотрят в разные стороны, каждая обслуживает свой сектор 120°. Внутри панели — решётка излучателей с <b>кросс-поляризацией ±45°</b>: две независимые «антенны» в одном корпусе. Так работает MIMO 2×2 и 4×4: несколько потоков данных идут на одной частоте одновременно и разделяются по пространству и поляризации.</p>
+      </article>
+      <article>
+        <h4>Наклон и покрытие</h4>
+        <p>Луч наклонён вниз на 2–8° (<b>tilt</b>). Электрический наклон меняют фазовращателями прямо в антенне, удалённо. Так оператор «подрезает» соту, чтобы она не мешала соседям. Радиус макросоты — от 0,5 км в городе до 30+ км на трассе на низких частотах 700–900 МГц.</p>
+      </article>
+      <article>
+        <h4>Massive MIMO в 5G</h4>
+        <p>В 5G на 3,5 ГГц вместо пассивной панели ставят <b>AAU</b>: 64 приёмопередатчика и 192 излучателя в одном блоке. Блок формирует узкие лучи (beamforming) на конкретных абонентов и следит за ними. Радио и антенна при этом объединены, фидер не нужен.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PLATE III: PHONE -->
+<section class="plate" id="phone">
+  <div class="wrap">
+    <div class="plate-head">
+      <div>
+        <p class="eyebrow">Таблица <b>III</b> · абонентский терминал (UE)</p>
+        <h2>Анатомия <em>смартфона</em></h2>
+      </div>
+      <p>В телефоне радиотракт занимает меньше места, чем батарея, но это самая сложная часть: десятки частотных диапазонов, усилители, фильтры и модем, который тысячи раз в секунду договаривается с вышкой о мощности и скорости.</p>
+    </div>
+    <div class="specimen">
+      <div class="stage" id="phone-stage"><div class="fig">Рис. 3 · <b>Послойный разбор корпуса</b></div><div class="hint">↔ поворот</div></div>
+      <aside class="side">
+        <div class="ctrl"><label for="phone-explode">Разбор слоёв <output id="phone-explode-out">70%</output></label><input type="range" id="phone-explode" min="0" max="100" value="70"></div>
+        <h3 id="phone-title">Выберите слой</h3>
+        <p class="desc" id="phone-desc">Корпус разделён на слои от экрана до задней крышки. Нажмите на пункт легенды.</p>
+        <ul class="legend" id="phone-legend"></ul>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- PLATE IV: PHYSICS -->
+<section class="plate" id="physics">
+  <div class="wrap">
+    <div class="plate-head">
+      <div>
+        <p class="eyebrow">Таблица <b>IV</b> · радиоинтерфейс</p>
+        <h2>Физика: <em>как биты садятся на волну</em></h2>
+      </div>
+      <p>Антенна излучает электромагнитную волну с частотой несущей. Чтобы передать данные, у волны меняют амплитуду и фазу (модуляция), а сам канал режут на сотни узких поднесущих (OFDM). Три прибора ниже можно крутить.</p>
+    </div>
+    <div class="instruments">
+      <div class="inst">
+        <p class="eyebrow">Прибор 1</p>
+        <h3>Созвездие QAM</h3>
+        <p>Каждая точка — одно состояние «амплитуда + фаза», один символ. Шум эфира размывает точки. Чем выше порядок QAM, тем больше бит на символ и тем чище нужен сигнал.</p>
+        <canvas id="qam" aria-label="Диаграмма созвездия QAM"></canvas>
+        <div class="btns" id="qam-order" role="group" aria-label="Порядок модуляции">
+          <button class="btn" data-m="4">QPSK</button><button class="btn" data-m="16" aria-pressed="true">16-QAM</button><button class="btn" data-m="64">64-QAM</button><button class="btn" data-m="256">256-QAM</button>
+        </div>
+        <div class="ctrl"><label for="qam-snr">Отношение сигнал/шум <output id="qam-snr-out">22 дБ</output></label><input type="range" id="qam-snr" min="4" max="36" value="22"></div>
+        <p class="readout" id="qam-read"></p>
+      </div>
+      <div class="inst">
+        <p class="eyebrow">Прибор 2</p>
+        <h3>Поднесущие OFDM</h3>
+        <p>Спектры соседних поднесущих перекрываются, но не мешают: в пике каждой остальные проходят через ноль. Это <b>ортогональность</b>. В LTE шаг 15 кГц, в 5G 15–120 кГц.</p>
+        <canvas id="ofdm" aria-label="Спектр поднесущих OFDM"></canvas>
+        <div class="ctrl"><label for="ofdm-n">Число поднесущих <output id="ofdm-n-out">7</output></label><input type="range" id="ofdm-n" min="3" max="14" value="7"></div>
+        <p class="readout">LTE 20 МГц: <b>1200</b> поднесущих × 15 кГц · символ <b>66,7 мкс</b> + циклический префикс 4,7 мкс против эха.</p>
+      </div>
+      <div class="inst">
+        <p class="eyebrow">Прибор 3</p>
+        <h3>Затухание в эфире</h3>
+        <p>Мощность сигнала падает с квадратом расстояния и с ростом частоты. Поэтому низкие диапазоны дают покрытие, а высокие дают скорость на коротком радиусе.</p>
+        <div class="ctrl"><label for="fs-f">Частота <output id="fs-f-out">1800 МГц</output></label><input type="range" id="fs-f" min="0" max="1000" value="380"></div>
+        <div class="ctrl"><label for="fs-d">Расстояние <output id="fs-d-out">2 км</output></label><input type="range" id="fs-d" min="0" max="1000" value="520"></div>
+        <div class="metrics">
+          <div><b id="fs-loss">—</b><span>потери в свободном пространстве</span></div>
+          <div><b id="fs-rx">—</b><span>приём при 46 dBm + 17 dBi</span></div>
+          <div><b id="fs-lambda">—</b><span>длина волны</span></div>
+          <div><b id="fs-ant">—</b><span>полуволновой диполь</span></div>
+        </div>
+        <p class="formula">FSPL = 20·lg d<sub>км</sub> + 20·lg f<sub>МГц</sub> + 32,44 дБ</p>
+      </div>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Диапазон</th><th>Частоты</th><th>Длина волны</th><th>Для чего</th><th>Радиус соты</th></tr></thead>
+        <tbody>
+          <tr><td>Low band</td><td>600–900 МГц (B20, B8, n28)</td><td>33–50 см</td><td>Покрытие, проникновение в здания, трассы, сёла</td><td>до 30+ км</td></tr>
+          <tr><td>Mid band</td><td>1,7–2,7 ГГц (B3, B1, B7)</td><td>11–17 см</td><td>Основная ёмкость LTE в городах</td><td>1–5 км</td></tr>
+          <tr><td>C-band</td><td>3,3–4,2 ГГц (n78, n77)</td><td>7–9 см</td><td>Основной диапазон 5G, Massive MIMO, полосы 100 МГц</td><td>0,3–1,5 км</td></tr>
+          <tr><td>mmWave</td><td>24–40 ГГц (n257, n258)</td><td>7,5–12 мм</td><td>Гигабиты на стадионах и площадях, прямая видимость</td><td>100–300 м</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- PLATE V: CELLS -->
+<section class="plate" id="cells">
+  <div class="wrap">
+    <div class="plate-head">
+      <div>
+        <p class="eyebrow">Таблица <b>V</b> · мобильность</p>
+        <h2>Соты и <em>хендовер</em></h2>
+      </div>
+      <p>Территорию делят на соты, чтобы использовать одни и те же частоты много раз. Телефон постоянно меряет силу сигнала своей и соседних сот (RSRP). Когда соседняя становится заметно сильнее, сеть переключает вас на ходу, без разрыва звонка. На модели абонент едет по городу, числа справа рассчитаны по модели затухания для городской застройки.</p>
+    </div>
+    <div class="specimen">
+      <div class="stage" id="cells-stage"><div class="fig">Рис. 5 · <b>19 сот, частота 1800 МГц</b></div><div class="hud" id="cells-hud">—</div><div class="hint">↔ поворот</div></div>
+      <aside class="side">
+        <h3>Как принимается решение</h3>
+        <p class="desc">Телефон сообщает сети измерения. Событие <b>A3</b> наступает, когда сосед сильнее обслуживающей соты на <b>гистерезис</b> (здесь 3 дБ) дольше, чем <b>time-to-trigger</b> (здесь 320 мс). Тогда исходная станция по интерфейсу X2/Xn готовит целевую, и телефон получает команду перейти. Гистерезис нужен, чтобы абонент на границе не прыгал туда-обратно (эффект «пинг-понга»).</p>
+        <div class="metrics">
+          <div><b id="cells-ho">0</b><span>хендоверов за поездку</span></div>
+          <div><b id="cells-cell">—</b><span>обслуживающая сота</span></div>
+        </div>
+        <p class="formula">RSRP ≈ 15 − (128,1 + 37,6·lg d<sub>км</sub>) dBm</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATE VI: SATELLITE -->
+<section class="plate" id="satellite">
+  <div class="wrap">
+    <div class="plate-head">
+      <div>
+        <p class="eyebrow">Таблица <b>VI</b> · неназемные сети (NTN)</p>
+        <h2>Анатомия <em>спутника</em></h2>
+      </div>
+      <p>Спутник — это базовая станция или ретранслятор, вынесенные в космос. Низкоорбитальные аппараты (LEO) летят со скоростью около 7,6 км/с и сменяют друг друга над абонентом каждые несколько минут. Поэтому их тысячи, и они передают трафик друг другу лазерами.</p>
+    </div>
+    <div class="specimen">
+      <div class="stage" id="sat-stage"><div class="fig">Рис. 6 · <b>LEO-аппарат связи, 550 км</b></div><div class="hint">↔ поворот</div></div>
+      <aside class="side">
+        <div class="ctrl"><label for="sat-explode">Разбор модели <output id="sat-explode-out">40%</output></label><input type="range" id="sat-explode" min="0" max="100" value="40"></div>
+        <h3 id="sat-title">Выберите узел</h3>
+        <p class="desc" id="sat-desc">Нажмите на пункт легенды, чтобы подсветить подсистему спутника.</p>
+        <ul class="legend" id="sat-legend"></ul>
+      </aside>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Орбита</th><th>Высота</th><th>Задержка «туда-обратно»*</th><th>Период</th><th>Примеры и особенности</th></tr></thead>
+        <tbody>
+          <tr><td>LEO</td><td>350–1200 км</td><td>≈ 4–16 мс (физика) · 25–60 мс на практике</td><td>≈ 95 мин</td><td>Starlink, OneWeb, «спутник прямо в телефон» (direct-to-cell). Нужны тысячи аппаратов и межспутниковые лазеры.</td></tr>
+          <tr><td>MEO</td><td>8 000–20 000 км</td><td>≈ 55–135 мс</td><td>4,8–12 ч</td><td>O3b/mPOWER, навигация GPS/ГЛОНАСС/Galileo.</td></tr>
+          <tr><td>GEO</td><td>35 786 км</td><td>≈ 480 мс (абонент → спутник → шлюз и обратно)</td><td>24 ч, «висит» над точкой</td><td>Классическое спутниковое ТВ и VSAT, Inmarsat. Три аппарата покрывают почти всю Землю, кроме полюсов.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">* Расчёт: свет проходит 35 786 км за 119 мс. Путь абонент → спутник → наземный шлюз — это два пролёта, а ответ возвращается тем же путём, поэтому получается четыре пролёта, около 480 мс без учёта обработки.</p>
+  </div>
+</section>
+
+<!-- PLATE VII: INTERCEPT -->
+<section class="plate threat" id="intercept">
+  <div class="wrap">
+    <div class="plate-head">
+      <div>
+        <p class="eyebrow">Таблица <b>VII</b> · безопасность</p>
+        <h2>Почему возможен <em>перехват</em></h2>
+      </div>
+      <p>Радио слышат все в зоне приёма, поэтому защита держится на криптографии и на взаимной проверке «телефон ↔ сеть». Перехват возможен там, где этой проверки нет (2G), где шифрование слабое, где телефон раскрывает свой идентификатор до включения защиты, или где атакуют не эфир, а саму сеть оператора. На модели показан самый известный сценарий: ложная базовая станция.</p>
+    </div>
+    <div class="specimen">
+      <div class="stage" id="int-stage"><div class="fig">Рис. 7 · <b>Ложная базовая станция (IMSI-catcher)</b></div><div class="hint">↔ поворот</div></div>
+      <aside class="side">
+        <div class="btns" id="int-steps" role="group" aria-label="Этапы сценария"></div>
+        <h3 id="int-title">—</h3>
+        <p class="desc" id="int-desc"></p>
+        <div class="btns"><button class="btn" id="int-auto" aria-pressed="true">Автопоказ</button></div>
+      </aside>
+    </div>
+
+    <div class="cards">
+      <div class="card"><span class="k">Уязвимость эфира</span><h4>Нет взаимной аутентификации в 2G</h4><p>В GSM телефон доказывает сети, что он «свой», а сеть телефону ничего не доказывает. Любая станция с правильным кодом оператора выглядит настоящей. Именно поэтому атаки чаще всего сводятся к принудительному переходу в 2G.</p></div>
+      <div class="card"><span class="k">Слабая криптография</span><h4>A5/1, A5/2 и нулевой шифр</h4><p>Шифры GSM 1980-х годов имеют 64-битный ключ с известными слабостями. A5/2 давно запрещён, A5/1 вскрывается по предвычисленным таблицам. Сеть ещё и может выбрать режим A5/0, то есть передачу без шифрования, и многие телефоны об этом не предупреждают.</p></div>
+      <div class="card"><span class="k">Утечка идентификатора</span><h4>IMSI до включения защиты</h4><p>В 2G–4G телефон может передать постоянный номер SIM (IMSI) открытым текстом, если сеть ещё «не узнала» его временный TMSI. Этого достаточно, чтобы установить, что конкретный человек находится рядом. 5G закрывает это шифрованием идентификатора (SUCI).</p></div>
+      <div class="card"><span class="k">Ядро сети</span><h4>SS7 и Diameter</h4><p>Сигнальные протоколы между операторами создавались для доверенного «клуба» телефонных компаний. Тот, кто получил доступ к этой сети, может запрашивать местоположение абонента или перенаправлять SMS. Радиоэфир при этом не трогают вообще. Операторы защищаются сигнальными файрволами.</p></div>
+      <div class="card"><span class="k">Легальный канал</span><h4>Законный перехват (LI, СОРМ)</h4><p>Шифрование в сотовой сети действует только на участке «телефон ↔ базовая станция». Внутри оператора разговор и SMS расшифрованы, а законодательство многих стран требует ставить у оператора оборудование для перехвата по запросу госорганов. Поэтому сотовая сеть не даёт сквозного шифрования.</p></div>
+      <div class="card"><span class="k">Устройство и SIM</span><h4>Шпионское ПО и SIM-swap</h4><p>Самые надёжные атаки идут в обход радио: вредоносная программа на телефоне читает всё до шифрования, а мошенник по поддельным документам перевыпускает SIM-карту и получает чужие SMS-коды. Против этого не помогает никакая криптография эфира.</p></div>
+    </div>
+
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Поколение</th><th>Сеть доказывает подлинность</th><th>Шифрование эфира</th><th>Целостность</th><th>Скрытие IMSI</th></tr></thead>
+        <tbody>
+          <tr><td>2G GSM</td><td><span class="pill bad">нет</span></td><td>A5/1, A5/3, бывает A5/0 (выкл.) · 64 бит</td><td><span class="pill bad">нет</span></td><td><span class="pill mid">TMSI, но IMSI можно запросить</span></td></tr>
+          <tr><td>3G UMTS</td><td><span class="pill ok">да (AKA)</span></td><td>KASUMI / SNOW 3G · 128 бит</td><td><span class="pill mid">сигнализация</span></td><td><span class="pill mid">TMSI, IMSI можно запросить</span></td></tr>
+          <tr><td>4G LTE</td><td><span class="pill ok">да (EPS-AKA)</span></td><td>SNOW 3G / AES / ZUC · 128 бит</td><td><span class="pill mid">сигнализация</span></td><td><span class="pill mid">GUTI, IMSI можно запросить</span></td></tr>
+          <tr><td>5G SA</td><td><span class="pill ok">да (5G-AKA / EAP-AKA′)</span></td><td>NEA1–3 (SNOW, AES, ZUC) · 128 бит, задел на 256</td><td><span class="pill ok">сигнализация + опц. данные</span></td><td><span class="pill ok">SUCI: шифруется ключом оператора</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cards">
+      <div class="card def"><span class="k">Защита</span><h4>Отключите 2G</h4><p>В Android 12+ (Pixel, часть Samsung и других) есть переключатель «Разрешить 2G» в настройках SIM-карты. В iOS 17+ 2G отключается в режиме блокировки (Lockdown Mode). Ложной станции тогда нечем «понизить» телефон.</p></div>
+      <div class="card def"><span class="k">Защита</span><h4>Сквозное шифрование</h4><p>Звонки и сообщения в Signal, WhatsApp, FaceTime шифруются на устройствах собеседников. Оператор и любой посредник видят только зашифрованный поток. Это единственная защита содержания разговора, которая не зависит от сети.</p></div>
+      <div class="card def"><span class="k">Защита</span><h4>Не SMS для входа</h4><p>Используйте приложение-генератор кодов или аппаратный ключ вместо SMS-кодов. Поставьте PIN-код на SIM и попросите оператора запретить перевыпуск SIM без личного визита.</p></div>
+    </div>
+    <p class="note">Раздел объясняет устройство уязвимостей на уровне публичных стандартов 3GPP и известных исследований, чтобы понимать риски и выбирать защиту. Использование ложных базовых станций и подключение к чужим линиям связи без санкции суда является уголовным преступлением в большинстве стран, включая Казахстан и Россию.</p>
+  </div>
+</section>
+
+<!-- GENERATIONS -->
+<section class="plate" id="generations">
+  <div class="wrap">
+    <div class="plate-head">
+      <div>
+        <p class="eyebrow">Приложение · эволюция</p>
+        <h2>Поколения: <em>1G → 5G</em></h2>
+      </div>
+      <p>Каждое поколение меняло способ делить эфир между абонентами: по частоте, по времени, по коду, по поднесущим и наконец по лучам в пространстве. Ядро сети при этом перешло с коммутации каналов на IP.</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Поколение</th><th>Годы</th><th>Доступ к эфиру</th><th>Скорость (пик)</th><th>Голос</th><th>Ядро сети</th></tr></thead>
+        <tbody>
+          <tr><td>1G NMT/AMPS</td><td>1979–1990-е</td><td>FDMA, аналоговая FM</td><td>—</td><td>Аналог, без шифрования: слушался обычным сканером</td><td>Коммутация каналов</td></tr>
+          <tr><td>2G GSM</td><td>1991</td><td>TDMA: 8 таймслотов в канале 200 кГц, GMSK</td><td>9,6 кбит/с; EDGE 236 кбит/с</td><td>Цифровой, кодек FR/EFR/AMR</td><td>MSC, HLR, VLR</td></tr>
+          <tr><td>3G UMTS</td><td>2001</td><td>WCDMA: коды расширения, канал 5 МГц</td><td>HSPA+ 42 Мбит/с</td><td>Коммутация каналов</td><td>MSC + пакетное ядро SGSN/GGSN</td></tr>
+          <tr><td>4G LTE</td><td>2009</td><td>OFDMA вниз / SC-FDMA вверх, MIMO, до 20 МГц × CA</td><td>LTE-A Pro &gt; 1 Гбит/с</td><td>VoLTE поверх IP (IMS), кодек EVS</td><td>EPC: MME, SGW, PGW, HSS</td></tr>
+          <tr><td>5G NR</td><td>2019</td><td>OFDMA с гибкой нумерологией, Massive MIMO, beamforming, до 400 МГц</td><td>до 10–20 Гбит/с</td><td>VoNR (IMS)</td><td>5GC: AMF, SMF, UPF, UDM, сервисная архитектура</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prose">
+      <article><h4>Ядро 5G</h4><p><b>AMF</b> регистрирует абонента и следит за мобильностью. <b>SMF</b> создаёт сессии передачи данных. <b>UPF</b> пропускает сами пакеты в интернет. <b>UDM/AUSF</b> хранят ключи SIM и проводят аутентификацию. Голос обслуживает отдельная система <b>IMS</b>.</p></article>
+      <article><h4>Транспорт (backhaul)</h4><p>Базовую станцию соединяет с ядром оптоволокно (10–100 Гбит/с) или радиорелейный пролёт (РРЛ) в диапазонах 15–80 ГГц на расстояние до десятков километров. Синхронизацию по времени дают GPS/ГЛОНАСС или протокол PTP (IEEE 1588).</p></article>
+      <article><h4>SIM-карта</h4><p>SIM хранит секретный ключ <b>Ki/K</b>, который никогда не покидает карту. Сеть посылает случайное число, SIM вычисляет ответ и сеансовые ключи. Так проверяется подлинность без передачи ключа по эфиру. eSIM — та же логика в чипе, распаянном на плате.</p></article>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Анатомия сотовой связи · интерактивный атлас. Модели схематичны, пропорции изменены для наглядности.</p>
+    <p class="mono">Источники: спецификации 3GPP TS 33.501, 36.300, 38.300 · ITU-R P.525 · GSMA FS.11</p>
+  </div>
+</footer>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const $ = s => document.querySelector(s);
+const C = { cyan:0x7fe3ff, amber:0xffb547, red:0xff5d5d, bone:0xd8e3ec, teal:0x3ad6b0, violet:0xa594ff };
+const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TAU = Math.PI * 2;
+const V = (x,y,z) => new THREE.Vector3(x,y,z);
+
+/* ---------- materials: x-ray look ---------- */
+function fresnelMat(color, opacity=1, power=2.0, base=0.05){
+  const m = new THREE.ShaderMaterial({
+    uniforms:{ uColor:{value:new THREE.Color(color)}, uOpacity:{value:opacity}, uPower:{value:power}, uBase:{value:base} },
+    vertexShader:`varying vec3 vN; varying vec3 vV;
+      void main(){ vec4 mv = modelViewMatrix*vec4(position,1.0); vN = normalize(normalMatrix*normal); vV = normalize(-mv.xyz); gl_Position = projectionMatrix*mv; }`,
+    fragmentShader:`uniform vec3 uColor; uniform float uOpacity, uPower, uBase; varying vec3 vN; varying vec3 vV;
+      void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), uPower); gl_FragColor = vec4(uColor*(0.4+f*1.1), (uBase + f*0.85)*uOpacity); }`,
+    transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, side:THREE.DoubleSide
+  });
+  m.userData.base = opacity; return m;
+}
+function lineMat(color, opacity=0.6){
+  const m = new THREE.LineBasicMaterial({ color, transparent:true, opacity, blending:THREE.AdditiveBlending, depthWrite:false });
+  m.userData.base = opacity; return m;
+}
+function pointMat(color, size=0.05, opacity=1){
+  const m = new THREE.PointsMaterial({ color, size, transparent:true, opacity, blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true });
+  m.userData.base = opacity; return m;
+}
+function xray(geom, color=C.cyan, { opacity=1, edges=true, thr=30, lineOp=0.5, power=2.0 }={}){
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(geom, fresnelMat(color, opacity, power)));
+  if (edges) g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geom, thr), lineMat(color, lineOp)));
+  return g;
+}
+function setGlow(obj, k){
+  obj.traverse(o => {
+    const m = o.material; if (!m || m.userData.base === undefined) return;
+    if (m.uniforms) m.uniforms.uOpacity.value = m.userData.base * k; else m.opacity = m.userData.base * k;
+  });
+}
+function lines(points, color, op=0.5){
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+  return new THREE.LineSegments(g, lineMat(color, op));
+}
+function polyline(pts, color, op=0.5){
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  return new THREE.Line(g, lineMat(color, op));
+}
+function tag(text, num, cls=''){
+  const d = document.createElement('div'); d.className = 'tag ' + cls;
+  d.innerHTML = `<span>${num!=null ? `<i>${num}</i>` : ''}${text}</span>`;
+  const o = new CSS2DObject(d); o.center.set(0.5,0.5); return o;
+}
+function glowSprite(color, size=0.5){
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d'); const gr = x.createRadialGradient(32,32,0,32,32,32);
+  const col = new THREE.Color(color); const rgb = `${col.r*255|0},${col.g*255|0},${col.b*255|0}`;
+  gr.addColorStop(0, `rgba(${rgb},1)`); gr.addColorStop(.25, `rgba(${rgb},.5)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+  x.fillStyle = gr; x.fillRect(0,0,64,64);
+  const m = new THREE.SpriteMaterial({ map:new THREE.CanvasTexture(c), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false });
+  m.userData.base = 1;
+  const s = new THREE.Sprite(m); s.scale.setScalar(size); return s;
+}
+function grid(size=20, div=20, op=0.08){
+  const g = new THREE.GridHelper(size, div, C.cyan, C.cyan);
+  g.material.transparent = true; g.material.opacity = op; g.material.depthWrite = false; return g;
+}
+function stars(n=600, r=40){
+  const p = []; for (let i=0;i<n;i++){ const v = new THREE.Vector3().randomDirection().multiplyScalar(r*(0.6+Math.random()*0.4)); p.push(v.x,v.y,v.z); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(p,3));
+  return new THREE.Points(g, pointMat(0xbfd6ea, 0.06, 0.6));
+}
+
+/* ---------- stage: one renderer per specimen, renders only when visible ---------- */
+const stages = [];
+class Stage {
+  constructor(el, { cam=[0,2,10], target=[0,0,0], fov=40, auto=0, minPolar=0.2, maxPolar=Math.PI/2, fit=0 }={}){
+    this.el = el; this.fit = fit; this.cam0 = V(...cam); this.tgt0 = V(...target);
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(fov, 1, 0.1, 300);
+    this.camera.position.set(...cam);
+    this.renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    this.renderer.setClearColor(0x000000, 0);
+    el.appendChild(this.renderer.domElement);
+    this.labels = new CSS2DRenderer(); this.labels.domElement.className = 'labels'; el.appendChild(this.labels.domElement);
+    this.controls = new OrbitControls(this.camera, this.labels.domElement);
+    this.controls.target.set(...target);
+    Object.assign(this.controls, { enableZoom:false, enablePan:false, enableDamping:true, dampingFactor:0.07, autoRotate: !!auto && !REDUCE, autoRotateSpeed: auto, minPolarAngle:minPolar, maxPolarAngle:maxPolar });
+    this.labels.domElement.style.touchAction = 'pan-y';
+    this.controls.addEventListener('start', () => { this.controls.autoRotate = false; clearTimeout(this._rt); });
+    this.controls.addEventListener('end', () => { if (auto && !REDUCE) this._rt = setTimeout(()=> this.controls.autoRotate = true, 4000); });
+    this.updaters = []; this.visible = false;
+    new IntersectionObserver(([e]) => this.visible = e.isIntersecting, { rootMargin:'120px' }).observe(el);
+    new ResizeObserver(() => this.resize()).observe(el);
+    this.resize(); stages.push(this);
+  }
+  resize(){
+    const w = this.el.clientWidth, h = this.el.clientHeight; if (!w || !h) return;
+    this.renderer.setSize(w, h); this.labels.setSize(w, h);
+    this.camera.aspect = w / h;
+    if (this.fit){ const d0 = this.cam0.distanceTo(this.tgt0); const need = this.fit / (Math.tan(this.camera.fov*Math.PI/360) * this.camera.aspect);
+      const dir = this.cam0.clone().sub(this.tgt0).normalize(); this.camera.position.copy(this.tgt0).addScaledVector(dir, Math.max(d0, need)); }
+    this.camera.updateProjectionMatrix();
+  }
+  on(fn){ this.updaters.push(fn); }
+  frame(t, dt){
+    if (!this.visible) return;
+    for (const f of this.updaters) f(t, dt);
+    this.controls.update();
+    this.renderer.render(this.scene, this.camera);
+    this.labels.render(this.scene, this.camera);
+  }
+}
+function safeStage(sel, opts){
+  const el = $(sel);
+  try { return new Stage(el, opts); }
+  catch(e){ const d = document.createElement('div'); d.className='nogl'; d.textContent='WebGL недоступен в этом браузере — 3D-модель не может быть показана. Текст и легенда работают.'; el.appendChild(d); return null; }
+}
+
+/* ---------- exploded-specimen controller (shared by tower / phone / satellite) ---------- */
+function specimen(stage, parts, ids){
+  const legend = $(ids.legend), slider = $(ids.slider), out = $(ids.out), title = $(ids.title), desc = $(ids.desc);
+  let k = slider.value/100, kt = k, focus = -1, userPicked = false;
+  parts.forEach((p, i) => {
+    p.base = p.obj.position.clone();
+    p.obj.children.forEach(c => { if (c.userData.dir) c.userData.base = c.position.clone(); });
+    stage.scene.add(p.obj);
+    const t = tag(p.name, i+1, p.cls || ''); t.position.copy(p.label || V(0,0,0));
+    (p.labelOn || p.obj).add(t); p.tag = t;
+    const li = document.createElement('li');
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed','false');
+    b.innerHTML = `<i>${i+1}</i><span>${p.name}</span>`;
+    b.addEventListener('mouseenter', () => { if (!userPicked) show(i); });
+    b.addEventListener('mouseleave', () => { if (!userPicked) show(-1); });
+    b.addEventListener('click', () => { userPicked = focus !== i; show(userPicked ? i : -1); });
+    li.appendChild(b); legend.appendChild(li); p.btn = b;
+  });
+  function show(i){
+    focus = i;
+    parts.forEach((p, j) => {
+      const on = i < 0 || i === j;
+      setGlow(p.obj, on ? (i === j ? 1.5 : 1) : 0.18);
+      p.tag.element.classList.toggle('dim', !on);
+      p.btn.setAttribute('aria-pressed', String(i === j));
+    });
+    if (i >= 0){ title.textContent = parts[i].name; desc.innerHTML = parts[i].desc; }
+  }
+  slider.addEventListener('input', () => { kt = slider.value/100; out.textContent = slider.value + '%'; });
+  stage.on(() => {
+    k += (kt - k) * 0.08;
+    for (const p of parts){
+      p.obj.position.copy(p.base).addScaledVector(p.dir, k);
+      p.obj.children.forEach(c => { if (c.userData.dir) c.position.copy(c.userData.base).addScaledVector(c.userData.dir, k); });
+    }
+  });
+  return { show };
+}
+
+/* =========================================================
+   HERO — globe, base stations, orbits
+   ========================================================= */
+function hero(){
+  const st = safeStage('#hero-stage', { cam:[0,1.6,8.6], fov:36, auto:0.5, minPolar:0.4, maxPolar:2.6, fit:4.2 }); if (!st) return;
+  const S = st.scene, R = 2.25;
+  S.add(stars(900, 60));
+  const globe = new THREE.Group(); globe.rotation.z = 0.41; S.add(globe);
+  globe.add(xray(new THREE.SphereGeometry(R, 64, 48), C.cyan, { edges:false, opacity:0.75, power:2.6 }));
+  // graticule
+  const gp = [];
+  for (let lat=-75; lat<=75; lat+=15){ const y=R*Math.sin(lat*Math.PI/180), r=R*Math.cos(lat*Math.PI/180);
+    for (let a=0; a<360; a+=4){ const a1=a*Math.PI/180, a2=(a+4)*Math.PI/180; gp.push(r*Math.cos(a1),y,r*Math.sin(a1), r*Math.cos(a2),y,r*Math.sin(a2)); } }
+  for (let lon=0; lon<180; lon+=15){ const L=lon*Math.PI/180;
+    for (let a=0; a<360; a+=4){ const a1=a*Math.PI/180, a2=(a+4)*Math.PI/180;
+      gp.push(R*Math.cos(a1)*Math.cos(L),R*Math.sin(a1),R*Math.cos(a1)*Math.sin(L), R*Math.cos(a2)*Math.cos(L),R*Math.sin(a2),R*Math.cos(a2)*Math.sin(L)); } }
+  globe.add(lines(gp, C.cyan, 0.07));
+  // pseudo-landmass dots (fibonacci sphere masked by smooth noise)
+  const land = [], dots = [];
+  const N = 5200, ga = Math.PI*(3-Math.sqrt(5));
+  const mask = v => Math.sin(v.x*2.1+0.7)*Math.cos(v.y*1.7-0.4)+Math.sin(v.z*2.6+v.x*0.9)*0.8+Math.cos(v.y*3.3+v.z)*0.35;
+  for (let i=0;i<N;i++){ const y=1-(i/(N-1))*2, r=Math.sqrt(1-y*y), th=ga*i; const v=V(Math.cos(th)*r, y, Math.sin(th)*r);
+    if (mask(v) > 0.55 && Math.abs(y) < 0.92){ v.multiplyScalar(R*1.003); dots.push(v.x,v.y,v.z); land.push(v); } }
+  const dg = new THREE.BufferGeometry(); dg.setAttribute('position', new THREE.Float32BufferAttribute(dots,3));
+  globe.add(new THREE.Points(dg, pointMat(C.cyan, 0.028, 0.75)));
+  // base stations
+  const towers = []; const ringGeo = new THREE.RingGeometry(0.03, 0.045, 32);
+  for (let i=0;i<34;i++){
+    const p = land[(i*137 + 11) % land.length].clone(); const n = p.clone().normalize();
+    const t = new THREE.Group(); t.position.copy(p); t.lookAt(p.clone().add(n)); globe.add(t);
+    t.add(lines([0,0,0, 0,0,0.13], C.amber, 0.9));
+    const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color:C.amber, transparent:true, opacity:0.8, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide }));
+    t.add(ring); towers.push({ p, ring, ph: Math.random() });
+  }
+  // terrestrial links (fibre / microwave arcs)
+  const arcs = [];
+  for (let i=0;i<towers.length;i++){
+    let best=null, bd=1e9; for (let j=0;j<towers.length;j++){ if (i===j) continue; const d=towers[i].p.distanceTo(towers[j].p); if (d<bd && d>0.3){ bd=d; best=j; } }
+    if (best==null || bd > 1.6) continue;
+    const a = towers[i].p, b = towers[best].p; const mid = a.clone().add(b).multiplyScalar(0.5).normalize().multiplyScalar(R + bd*0.28);
+    const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
+    globe.add(polyline(curve.getPoints(40), C.teal, 0.28));
+    const dot = glowSprite(C.teal, 0.12); globe.add(dot); arcs.push({ curve, dot, s: Math.random() });
+  }
+  // orbits
+  const sats = [];
+  const satModel = () => { const g = new THREE.Group();
+    g.add(xray(new THREE.BoxGeometry(0.05,0.05,0.08), C.bone, { lineOp:0.8 }));
+    const w = xray(new THREE.BoxGeometry(0.22,0.004,0.06), C.violet, { lineOp:0.7 }); g.add(w); return g; };
+  const planes = [ {inc:0.95, raan:0.0, r:R+0.55, n:5, sp:0.16}, {inc:0.95, raan:2.1, r:R+0.55, n:5, sp:0.16}, {inc:0.95, raan:4.2, r:R+0.55, n:5, sp:0.16}, {inc:0.15, raan:0.4, r:R+1.25, n:3, sp:0.07} ];
+  planes.forEach(pl => {
+    const plane = new THREE.Group(); plane.rotation.y = pl.raan; plane.rotation.x = pl.inc; globe.add(plane);
+    const op = []; for (let a=0;a<=128;a++){ const th=a/128*TAU; op.push(V(Math.cos(th)*pl.r,0,Math.sin(th)*pl.r)); }
+    plane.add(polyline(op, C.violet, 0.16));
+    for (let i=0;i<pl.n;i++){ const piv = new THREE.Group(); plane.add(piv); const s = satModel(); s.position.x = pl.r; piv.add(s);
+      piv.rotation.y = i/pl.n*TAU; sats.push({ piv, s, sp: pl.sp }); }
+  });
+  // geo sat
+  const geoPiv = new THREE.Group(); globe.add(geoPiv); const geo = satModel(); geo.scale.setScalar(1.6); geo.position.x = R+2.2; geoPiv.add(geo); sats.push({ piv:geoPiv, s:geo, sp:0.02 });
+  const lt = tag('Спутник GEO · 35 786 км', null, 'amber'); lt.position.set(0,0.12,0); geo.add(lt);
+  const lt2 = tag('LEO · 550 км', null); lt2.position.set(0,0.1,0); sats[0].s.add(lt2);
+  const lt3 = tag('Базовая станция', null, 'amber'); towers[3].ring.parent.add(lt3); lt3.position.set(0,0,0.16);
+  // beams sat → nearest station
+  const beamPos = new Float32Array(sats.length*6);
+  const bg = new THREE.BufferGeometry(); bg.setAttribute('position', new THREE.BufferAttribute(beamPos,3));
+  const beams = new THREE.LineSegments(bg, lineMat(C.amber, 0.5)); globe.add(beams);
+  const tmp = V(0,0,0);
+  st.on((t, dt) => {
+    const sp = REDUCE ? 0.2 : 1;
+    towers.forEach(o => { const k = ((t*0.6*sp + o.ph) % 1); o.ring.scale.setScalar(1 + k*4); o.ring.material.opacity = 0.8*(1-k); });
+    arcs.forEach(a => { a.s = (a.s + dt*0.35*sp) % 1; a.dot.position.copy(a.curve.getPoint(a.s)); });
+    sats.forEach((o, i) => {
+      o.piv.rotation.y += dt*o.sp*sp;
+      o.s.getWorldPosition(tmp); globe.worldToLocal(tmp);
+      let best=null, bd=1e9; for (const tw of towers){ const d = tw.p.distanceToSquared(tmp); if (d<bd){ bd=d; best=tw; } }
+      const on = bd < (i === sats.length-1 ? 9 : 1.1);
+      const b = on ? best.p : tmp;
+      beamPos.set([tmp.x,tmp.y,tmp.z, b.x,b.y,b.z], i*6);
+    });
+    bg.attributes.position.needsUpdate = true;
+  });
+}
+
+/* =========================================================
+   I. SIGNAL PATH
+   ========================================================= */
+function miniTower(color=C.cyan){
+  const g = new THREE.Group(); const h = 3.2;
+  const P = []; const leg = (y,i) => { const r = 0.42 - y*0.07; const a = i*TAU/3+Math.PI/2; return [Math.cos(a)*r, y, Math.sin(a)*r]; };
+  for (let y=0; y<h-0.01; y+=0.4){ const y2 = Math.min(h, y+0.4); for (let i=0;i<3;i++){ const j=(i+1)%3; P.push(...leg(y,i),...leg(y2,i), ...leg(y,i),...leg(y2,j), ...leg(y2,i),...leg(y2,j)); } }
+  g.add(lines(P, C.bone, 0.45));
+  for (let i=0;i<3;i++){ const a = i*TAU/3+Math.PI/6; const pnl = xray(new THREE.BoxGeometry(0.16,0.7,0.06), color, { lineOp:0.8 });
+    pnl.position.set(Math.cos(a)*0.32, h-0.2, Math.sin(a)*0.32); pnl.rotation.y = Math.atan2(Math.cos(a), Math.sin(a)); g.add(pnl); }
+  const cab = xray(new THREE.BoxGeometry(0.6,0.7,0.45), color, { lineOp:0.6 }); cab.position.set(0.9,0.35,0); g.add(cab);
+  return g;
+}
+function miniPhone(color=C.cyan){
+  const g = new THREE.Group();
+  const b = xray(new THREE.BoxGeometry(0.34,0.68,0.05), color, { lineOp:0.9 }); g.add(b);
+  const scr = lines([-0.14,-0.28,0.03, 0.14,-0.28,0.03, 0.14,-0.28,0.03, 0.14,0.3,0.03, 0.14,0.3,0.03, -0.14,0.3,0.03, -0.14,0.3,0.03, -0.14,-0.28,0.03], color, 0.5); g.add(scr);
+  return g;
+}
+function wave(a, b, color, amp=0.12, k=26){
+  const N = 140; const pos = new Float32Array(N*3);
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const ln = new THREE.Line(g, lineMat(color, 0.9));
+  const dir = b.clone().sub(a); const perp = V(-dir.y, dir.x, 0).normalize();
+  ln.userData.upd = (t, speed=1, ampK=1) => {
+    for (let i=0;i<N;i++){ const s=i/(N-1); const env=Math.sin(s*Math.PI); const off=Math.sin(s*k - t*8*speed)*amp*env*ampK;
+      pos[i*3]=a.x+dir.x*s+perp.x*off; pos[i*3+1]=a.y+dir.y*s+perp.y*off; pos[i*3+2]=a.z+dir.z*s+perp.z*off; }
+    g.attributes.position.needsUpdate = true;
+  };
+  return ln;
+}
+function pathScene(){
+  const steps = [
+    { t:'1 · Голос становится цифрой', d:'Микрофон превращает звук в напряжение. <b>АЦП</b> делает 16 000 замеров в секунду, а речевой кодек (<b>AMR-WB</b> или <b>EVS</b>) сжимает их в кадры по 20 мс. От голоса остаётся поток 13–24 кбит/с. Каждый кадр нумеруется и заворачивается в пакеты RTP/IP: в 4G и 5G голос идёт как данные.', m:[['20 мс','длина речевого кадра'],['13,2 кбит/с','типичный битрейт EVS']], seg:[0] },
+    { t:'2 · Кодирование и модуляция', d:'Модем добавляет избыточность для исправления ошибок (<b>LDPC</b> в 5G, турбокоды в LTE), перемешивает биты и раскладывает их по точкам созвездия <b>QAM</b>. Затем символы распределяются по сотням поднесущих <b>OFDM</b>, и обратное преобразование Фурье собирает их в один сигнал.', m:[['QPSK…256-QAM','2–8 бит на символ'],['15–30 кГц','шаг поднесущих']], seg:[0] },
+    { t:'3 · Эфир: телефон → вышка (uplink)', d:'Радиотракт переносит сигнал на несущую, например 1800 МГц, усиливает до <b>0,2 Вт</b> и отдаёт в антенну. Волна летит со скоростью света, отражается от домов и затухает в миллиарды раз. Вышка ловит её на уровне около <b>−100 dBm</b>, это 10⁻¹³ Вт.', m:[['23 dBm','мощность телефона'],['≈ 3,3 мкс','на 1 км пути']], seg:[1] },
+    { t:'4 · Базовая станция', d:'Антенна передаёт сигнал в радиоблок <b>RRU</b>, который фильтрует и оцифровывает его прямо на мачте. По оптике (<b>CPRI/eCPRI</b>) отсчёты спускаются вниз, в цифровой блок <b>BBU</b>. Там идёт демодуляция, исправление ошибок и расшифровка ключом, который знают только SIM-карта и сеть.', m:[['до 25 Гбит/с','поток CPRI на сектор'],['1 мс','такт планировщика LTE']], seg:[2] },
+    { t:'5 · Транспортная сеть', d:'Расшифрованные пакеты упаковываются в туннель <b>GTP-U</b> и идут по оптоволокну или радиорелейной линии (РРЛ) через агрегирующие маршрутизаторы оператора к ядру сети. Свет в волокне проходит 200 км за 1 мс.', m:[['5 мкс/км','задержка в оптике'],['10–100 Гбит/с','канал до ядра']], seg:[3] },
+    { t:'6 · Ядро сети', d:'Ядро определяет, кому звонят. Система голосовых вызовов <b>IMS</b> по номеру находит профиль абонента B в базе (<b>HSS/UDM</b>), узнаёт его текущую зону и посылает пейджинг: «абонент, отзовитесь». Пакеты голоса проходят через шлюз пользовательских данных (<b>UPF</b>).', m:[['SIP','протокол установления вызова'],['≈ 1–3 с','время дозвона VoLTE']], seg:[4] },
+    { t:'7 · Обратный путь к абоненту B', d:'Вторая базовая станция заново шифрует, модулирует и передаёт сигнал вниз (<b>downlink</b>). Телефон B демодулирует, исправляет ошибки, собирает кадры в <b>джиттер-буфер</b> и восстанавливает голос через ЦАП. Задержка «рот → ухо» в хорошей сети составляет <b>100–200 мс</b>; ITU рекомендует не выше 150 мс.', m:[['< 150 мс','комфортная задержка'],['≈ 1–5 %','допустимые потери кадров']], seg:[5,6] },
+  ];
+  const btnBox = $('#path-steps'), title = $('#path-title'), desc = $('#path-desc'), met = $('#path-metrics'), autoBtn = $('#path-auto');
+  let cur = 0, auto = !REDUCE, timer = 0;
+  steps.forEach((s, i) => { const b = document.createElement('button'); b.className='btn'; b.type='button'; b.textContent = i+1; b.setAttribute('aria-label', s.t);
+    b.addEventListener('click', () => { auto=false; autoBtn.setAttribute('aria-pressed','false'); go(i); }); btnBox.appendChild(b); });
+  autoBtn.setAttribute('aria-pressed', String(auto));
+  autoBtn.addEventListener('click', () => { auto = !auto; autoBtn.setAttribute('aria-pressed', String(auto)); timer = 0; });
+
+  const st = safeStage('#path-stage', { cam:[0,4.2,11], target:[0,1.7,0], fov:40, minPolar:0.5, maxPolar:1.5, fit:7.6 });
+  let segs = [];
+  if (st){
+    const S = st.scene; S.add(grid(26, 26, 0.06));
+    const pA = miniPhone(); pA.position.set(-6.4,0.9,0.6); S.add(pA);
+    const pB = miniPhone(); pB.position.set(6.4,0.9,0.6); S.add(pB);
+    const tA = miniTower(); tA.position.set(-3.6,0,-0.4); S.add(tA);
+    const tB = miniTower(); tB.position.set(3.6,0,-0.4); tB.rotation.y = Math.PI; S.add(tB);
+    // core: racks + functions
+    const core = new THREE.Group(); S.add(core);
+    for (let i=-1;i<=1;i++){ const r = xray(new THREE.BoxGeometry(0.55,1.6,0.6), C.teal, { lineOp:0.7 }); r.position.set(i*0.7,0.8,-0.6); core.add(r);
+      const l=[]; for (let y=0.2;y<1.6;y+=0.18) l.push(i*0.7-0.25,y,-0.29, i*0.7+0.25,y,-0.29); core.add(lines(l, C.teal, 0.5)); }
+    const fn = ['AMF','SMF','UPF','IMS','UDM'];
+    const fnObj = fn.map((n,i) => { const o = xray(new THREE.OctahedronGeometry(0.14), C.teal, { lineOp:0.9 }); core.add(o); const tg = tag(n, null); tg.position.set(0,0.05,0); o.add(tg); return o; });
+    const radioA = wave(V(-6.4,1.3,0.6), V(-3.6+0.32,3.0,-0.4), C.amber);
+    const radioB = wave(V(3.6-0.32,3.0,-0.4), V(6.4,1.3,0.6), C.amber);
+    S.add(radioA, radioB);
+    const fibA = new THREE.CatmullRomCurve3([V(-2.7,0.05,-0.4), V(-1.8,0.05,0.5), V(-0.9,0.05,0.2)]);
+    const fibB = new THREE.CatmullRomCurve3([V(0.9,0.05,0.2), V(1.8,0.05,0.5), V(2.7,0.05,-0.4)]);
+    const fA = polyline(fibA.getPoints(40), C.teal, 0.6), fB = polyline(fibB.getPoints(40), C.teal, 0.6); S.add(fA, fB);
+    const pulses = [...Array(6)].map((_,i) => { const s = glowSprite(C.teal, 0.25); S.add(s); return { s, c: i<3 ? fibA : fibB, o: (i%3)/3 }; });
+    // labels
+    const L = (o, txt, n, p, cls='') => { const t = tag(txt, n, cls); t.position.copy(p); o.add(t); };
+    L(pA, 'Абонент A', 'A', V(0,0.5,0)); L(pB, 'Абонент B', 'B', V(0,0.5,0), 'left');
+    L(tA, 'eNB/gNB', null, V(0,3.5,0), 'amber'); L(tB, 'eNB/gNB', null, V(0,3.5,0), 'amber');
+    L(core, 'Ядро сети 5GC / EPC', null, V(0,2.9,-0.6));
+    segs = [ [pA], [radioA], [tA], [fA, ...pulses.slice(0,3).map(p=>p.s)], [core], [fB, tB, ...pulses.slice(3).map(p=>p.s)], [radioB, pB] ];
+    st.on((t, dt) => {
+      const active = new Set(steps[cur].seg.flatMap(i => segs[i]));
+      if (cur === 6) segs[5].forEach(o => active.add(o));
+      segs.flat().forEach(o => setGlow(o, active.has(o) ? 1.6 : 0.3));
+      radioA.userData.upd(t, cur===2?1.4:0.5, cur===2?1.2:0.6);
+      radioB.userData.upd(t, cur===6?1.4:0.5, cur===6?1.2:0.6);
+      pulses.forEach(p => { p.o = (p.o + dt*(active.has(p.s)?0.6:0.2)) % 1; p.s.position.copy(p.c.getPoint(p.o)); });
+      fnObj.forEach((o,i) => { const a = t*0.5 + i/fn.length*TAU; o.position.set(Math.cos(a)*1.25, 2.1+Math.sin(t*1.3+i)*0.08, -0.6+Math.sin(a)*0.6); o.rotation.y = t; });
+    });
+  }
+  function go(i){
+    cur = i; timer = 0; const s = steps[i];
+    [...btnBox.children].forEach((b,j) => b.setAttribute('aria-pressed', String(j===i)));
+    title.textContent = s.t; desc.innerHTML = s.d;
+    met.innerHTML = s.m.map(([a,b]) => `<div><b>${a}</b><span>${b}</span></div>`).join('');
+  }
+  go(0);
+  const tick = (dt) => { if (!auto) return; timer += dt; if (timer > 7) go((cur+1) % steps.length); };
+  return tick;
+}
+
+/* =========================================================
+   II. TOWER
+   ========================================================= */
+function towerScene(){
+  const st = safeStage('#tower-stage', { cam:[12,7.6,15.5], target:[1,4.9,0], fov:40, auto:0.35, minPolar:0.3, maxPolar:1.75, fit:5.5 }); if (!st) return;
+  const S = st.scene; S.add(grid(30, 30, 0.07));
+  const H = 8.6;
+  const face = a => Math.atan2(Math.cos(a), Math.sin(a));
+  const out = (a, m=1, up=0) => V(Math.cos(a)*m, up, Math.sin(a)*m);
+  // 1 mast
+  const mast = new THREE.Group();
+  { const P=[]; const leg=(y,i)=>{ const r=0.95-(0.95-0.38)*(y/H); const a=i*TAU/3+Math.PI/2; return [Math.cos(a)*r,y,Math.sin(a)*r]; };
+    for (let y=0;y<H-0.01;y+=0.55){ const y2=Math.min(H,y+0.55); for (let i=0;i<3;i++){ const j=(i+1)%3; P.push(...leg(y,i),...leg(y2,i), ...leg(y,i),...leg(y2,j), ...leg(y2,i),...leg(y2,j)); } }
+    mast.add(lines(P, C.bone, 0.5));
+    for (const y of [7.55, 8.3]){ const ring=[]; for (let i=0;i<3;i++){ const a=i*TAU/3+Math.PI/6, b=(i+1)*TAU/3+Math.PI/6; ring.push(Math.cos(a)*1.3,y,Math.sin(a)*1.3, Math.cos(b)*1.3,y,Math.sin(b)*1.3); } mast.add(lines(ring, C.bone, 0.6)); }
+    // ladder
+    const lad=[]; for (let y=0.3;y<H;y+=0.25) lad.push(-0.12,y,0.42-y*0.035, 0.12,y,0.42-y*0.035); mast.add(lines(lad, C.bone, 0.18));
+  }
+  // 2 antennas (3 sectors)
+  const ant = new THREE.Group(); const lobes = [];
+  for (let i=0;i<3;i++){ const a = i*TAU/3+Math.PI/6; const g = new THREE.Group(); g.position.copy(out(a,1.3,8.0)); g.rotation.y = face(a);
+    g.add(xray(new THREE.BoxGeometry(0.46,1.8,0.16), C.cyan, { lineOp:0.8 }));
+    const x=[]; for (let k=-3;k<=3;k++){ const y=k*0.24; x.push(-0.1,y-0.08,0.09, 0.1,y+0.08,0.09, -0.1,y+0.08,0.09, 0.1,y-0.08,0.09); } g.add(lines(x, C.amber, 0.9));
+    const lobe = xray(new THREE.SphereGeometry(1,32,20), C.amber, { edges:false, opacity:0.45, power:1.6 }); lobe.scale.set(0.7,0.26,1.9); lobe.position.set(0,-0.2,2.05); lobe.rotation.x = 0.08; g.add(lobe); lobes.push(lobe);
+    g.userData.dir = out(a, 1.6, 0.5); ant.add(g); }
+  // 3 RRU
+  const rru = new THREE.Group();
+  for (let i=0;i<3;i++){ const a = i*TAU/3+Math.PI/6; const g = new THREE.Group(); g.position.copy(out(a,0.78,7.2)); g.rotation.y = face(a);
+    g.add(xray(new THREE.BoxGeometry(0.34,0.52,0.2), C.violet, { lineOp:0.8 }));
+    const f=[]; for (let k=-4;k<=4;k++) f.push(k*0.035,-0.24,-0.11, k*0.035,0.24,-0.11); g.add(lines(f, C.violet, 0.4));
+    g.userData.dir = out(a, 1.1, -0.2); rru.add(g); }
+  // 4 cables
+  const cab = new THREE.Group();
+  const route = (dx, col) => { const c = new THREE.CatmullRomCurve3([V(0.25+dx,7.5,0.2), V(0.3+dx,4.5,0.3), V(0.38+dx,0.7,0.45), V(1.2+dx,0.4,0.5), V(1.95,0.75+dx*2,0.45)]);
+    cab.add(xray(new THREE.TubeGeometry(c, 80, 0.028, 6), col, { edges:false, opacity:1.2, power:1.2 })); };
+  route(0, C.teal); route(0.09, C.amber);
+  // 5 microwave dish
+  const dish = new THREE.Group(); { const a = -Math.PI/2 - 0.5;
+    dish.position.copy(out(a,0.75,6.1)); dish.rotation.y = face(a);
+    const pts=[]; for (let i=0;i<=12;i++){ const x=i/12*0.55; pts.push(new THREE.Vector2(x, x*x*0.9)); }
+    const lg = new THREE.LatheGeometry(pts, 32); lg.rotateX(Math.PI/2); lg.translate(0,0,-0.27);
+    dish.add(xray(lg, C.cyan, { lineOp:0.25, thr:10 }));
+    const feed = new THREE.CylinderGeometry(0.03,0.03,0.4,8); feed.rotateX(Math.PI/2); feed.translate(0,0,0.0); dish.add(xray(feed, C.amber));
+    const beam=[]; for (let i=0;i<14;i++) beam.push(0,0,0.4+i*0.5, 0,0,0.6+i*0.5); dish.add(lines(beam, C.amber, 0.35));
+    dish.userData.beam = dish.children[2]; }
+  // 6 GPS
+  const gps = new THREE.Group(); gps.position.set(0.25, 8.75, -0.1);
+  gps.add(xray(new THREE.CylinderGeometry(0.08,0.08,0.14,16), C.teal)); { const d = xray(new THREE.SphereGeometry(0.08,16,8,0,TAU,0,Math.PI/2), C.teal); d.position.y=0.07; gps.add(d); }
+  gps.add(lines([0,-0.07,0, 0,-0.6,0], C.bone, 0.5));
+  // 7 lightning rod + obstruction light
+  const rod = new THREE.Group(); rod.position.set(0,8.6,0);
+  rod.add(xray(new THREE.CylinderGeometry(0.018,0.03,1.7,8).translate(0,0.85,0), C.bone, { lineOp:0.7 }));
+  const beacon = glowSprite(C.red, 0.7); beacon.position.y = 1.75; rod.add(beacon);
+  rod.add(xray(new THREE.SphereGeometry(0.06,12,8).translate(0,1.75,0), C.red));
+  // 8 cabinet shell
+  const shell = new THREE.Group(); shell.position.set(2.7,0.8,0.45);
+  shell.add(xray(new THREE.BoxGeometry(1.3,1.6,0.95), C.cyan, { opacity:0.55, lineOp:0.55 }));
+  // 9 BBU
+  const bbu = new THREE.Group(); bbu.position.set(2.6,1.15,0.45);
+  for (let i=0;i<3;i++){ const s = xray(new THREE.BoxGeometry(0.9,0.12,0.6), C.teal, { lineOp:0.9 }); s.position.y = i*0.17; bbu.add(s); }
+  { const led=[]; for (let i=0;i<3;i++) for (let j=0;j<6;j++) led.push(-0.38+j*0.06, i*0.17, 0.31); const g=new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(led,3)); bbu.add(new THREE.Points(g, pointMat(C.teal, 0.05, 1))); bbu.userData.led = bbu.children[3]; }
+  // 10 batteries/rectifier
+  const bat = new THREE.Group(); bat.position.set(2.6,0.28,0.45);
+  for (let i=0;i<4;i++){ const b = xray(new THREE.BoxGeometry(0.2,0.36,0.5), C.amber, { lineOp:0.7 }); b.position.x = -0.33+i*0.22; bat.add(b); }
+  // 11 climate
+  const ac = new THREE.Group(); ac.position.set(3.42,0.85,0.45);
+  ac.add(xray(new THREE.BoxGeometry(0.14,0.8,0.7), C.violet, { lineOp:0.6 }));
+  { const c=[]; for (let i=0;i<32;i++){ const a1=i/32*TAU, a2=(i+1)/32*TAU; c.push(0.08,Math.cos(a1)*0.22,Math.sin(a1)*0.22, 0.08,Math.cos(a2)*0.22,Math.sin(a2)*0.22); } const fan = lines(c, C.violet, 0.8); ac.add(fan);
+    const bl = lines([0.08,-0.2,0, 0.08,0.2,0, 0.08,0,-0.2, 0.08,0,0.2], C.violet, 0.8); ac.add(bl); ac.userData.blade = bl; }
+  // 12 foundation & grounding
+  const fnd = new THREE.Group();
+  fnd.add(xray(new THREE.BoxGeometry(2.9,0.35,2.9).translate(0,-0.18,0), C.bone, { opacity:0.5, lineOp:0.4 }));
+  { const g=[]; const s=2.3; const sq=[[-s,-s],[s,-s],[s,s],[-s,s],[-s,-s]]; for (let i=0;i<4;i++) g.push(sq[i][0],-0.5,sq[i][1], sq[i+1][0],-0.5,sq[i+1][1]); for (const [x,z] of sq.slice(0,4)) g.push(x,-0.5,z, x,-1.4,z); fnd.add(lines(g, C.amber, 0.5)); }
+
+  const parts = [
+    { name:'Мачта-опора', obj:mast, dir:V(0,0,0), label:V(0.6,4,0.4), desc:'Решётчатая трёхгранная опора из оцинкованной стали высотой обычно <b>30–70 м</b>. Её задача — поднять антенны над застройкой и деревьями, чтобы обеспечить прямую видимость. Площадки на верху держат антенны, лестница с тросом безопасности ведёт к обслуживанию. В городе вместо мачт используют крыши зданий и столбы.' },
+    { name:'Секторные антенны', obj:ant, labelOn:ant.children[0], label:V(0,1.05,0), dir:V(0,0,0), cls:'amber', desc:'Три панели по <b>120°</b>, каждая — решётка из 8–16 кросс-поляризованных излучателей ±45° (жёлтые крестики). Усиление <b>15–18 dBi</b>: энергия собрана в узкий по вертикали «блин» (оранжевый лепесток) с наклоном вниз. Антенна пассивна: она ничего не усиливает, только формирует диаграмму направленности.' },
+    { name:'Радиоблоки RRU', obj:rru, labelOn:rru.children[1], label:V(0,0.35,0), dir:V(0,0,0), desc:'<b>Remote Radio Unit</b> — приёмопередатчик, вынесенный на мачту к антенне, чтобы не терять мощность в длинном коаксиальном фидере. Внутри цифро-аналоговые и аналого-цифровые преобразователи, усилитель мощности 40–80 Вт, малошумящий усилитель приёма и дуплексный фильтр, разделяющий передачу и приём. Охлаждается пассивно рёбрами.' },
+    { name:'Оптика CPRI и питание', obj:cab, dir:V(0,0,1.3), label:V(0.4,4.3,0.4), cls:'amber', desc:'Вниз по мачте идут <b>оптоволокно</b> (зелёное) с цифровыми отсчётами радиосигнала по протоколу CPRI/eCPRI и <b>кабель питания −48 В DC</b> (жёлтый). Раньше вместо оптики тянули толстый коаксиальный фидер, в котором терялась половина мощности. Кабели заземляются в нескольких точках для защиты от молнии.' },
+    { name:'РРЛ-антенна (backhaul)', obj:dish, dir:V(-0.4,0,-1.4), label:V(0,0.4,0), desc:'Параболическая антенна <b>радиорелейной линии</b> связывает вышку с соседним узлом сети узким лучом в диапазонах <b>6–80 ГГц</b>, когда оптику проложить нельзя. Пролёт — до 50 км на низких частотах и 1–3 км на E-band с ёмкостью до 10–20 Гбит/с. Нужна прямая видимость: дождь на высоких частотах ослабляет сигнал.' },
+    { name:'GNSS-антенна синхронизации', obj:gps, dir:V(0.3,1.1,0), label:V(0,0.15,0), cls:'left', desc:'Приёмник <b>GPS/ГЛОНАСС</b> даёт станции точное время. Соседние вышки в системах TDD (5G n78) должны переключаться между приёмом и передачей синхронно с точностью <b>±1,5 мкс</b>, иначе они глушат друг друга. Альтернатива — протокол PTP по транспортной сети.' },
+    { name:'Молниеотвод и заградогни', obj:rod, dir:V(0,1.5,0), label:V(0,1.75,0), cls:'red', desc:'Молниеприёмник уводит разряд по металлу мачты в контур заземления. Красный <b>заградительный огонь</b> обязателен для сооружений выше 45–50 м, чтобы вышку видели пилоты.' },
+    { name:'Шкаф оборудования', obj:shell, dir:V(1.6,0,0.6), label:V(0,0.95,0), desc:'Всепогодный термошкаф или контейнер у основания. Держит рабочую температуру от −40 до +50 °C, защищает от пыли и вандалов. Внутри — цифровой блок, выпрямители, аккумуляторы, оптический кросс и транспортное оборудование.' },
+    { name:'Цифровой блок BBU', obj:bbu, dir:V(1.8,1.6,0.9), label:V(0,0.45,0), desc:'<b>Baseband Unit</b> — мозг станции. Выполняет всю цифровую обработку: OFDM, модуляцию, канальное кодирование, шифрование, планирование ресурсов каждую миллисекунду, протоколы MAC/RLC/PDCP. Через интерфейсы S1/NG связан с ядром сети, через X2/Xn — с соседними станциями. В 5G его делят на CU и DU, и часть функций может работать в облаке оператора.' },
+    { name:'Выпрямители и АКБ', obj:bat, dir:V(1.6,-0.1,2.0), label:V(0,0.3,0), cls:'amber', desc:'Выпрямители превращают сеть ~230/400 В в <b>−48 В DC</b>. Литиевые или свинцовые <b>аккумуляторы</b> держат станцию 2–8 часов при отключении электричества. На удалённых объектах добавляют дизель-генератор или солнечные панели. Макросота потребляет <b>1–5 кВт</b>.' },
+    { name:'Климат-система', obj:ac, dir:V(2.2,0,0), label:V(0.1,0.5,0), desc:'Кондиционер или теплообменник. Электроника выделяет сотни ватт тепла, а в сильный мороз аккумуляторы нужно подогревать. На климат уходит до трети энергопотребления объекта.' },
+    { name:'Фундамент и заземление', obj:fnd, dir:V(0,-1.1,0), label:V(1.5,-0.2,1.5), desc:'Железобетонный фундамент несёт ветровую нагрузку на мачту. Под ним — <b>контур заземления</b> из стальных полос и вертикальных электродов: в него уходит ток молнии, к нему подключены все металлические части. Нормативное сопротивление — единицы Ом.' },
+  ];
+  specimen(st, parts, { legend:'#tower-legend', slider:'#tower-explode', out:'#tower-explode-out', title:'#tower-title', desc:'#tower-desc' });
+  st.on((t) => {
+    lobes.forEach((l,i) => { const k = 1 + Math.sin(t*2 + i*2)*0.06; l.scale.set(0.7*k, 0.26*k, 1.9*k); });
+    beacon.material.opacity = 0.4 + 0.6*Math.max(0, Math.sin(t*3));
+    ac.userData.blade.rotation.x = t*4;
+    if (bbu.userData.led) bbu.userData.led.material.size = 0.04 + 0.02*Math.abs(Math.sin(t*9));
+    dish.userData.beam.material.opacity = 0.2 + 0.25*Math.abs(Math.sin(t*1.5));
+  });
+}
+
+/* =========================================================
+   III. PHONE
+   ========================================================= */
+function phoneScene(){
+  const st = safeStage('#phone-stage', { cam:[4.4,1.5,1.9], target:[0,0,0], fov:36, auto:0.6, minPolar:0.3, maxPolar:2.6, fit:1.9 }); if (!st) return;
+  const S = st.scene; S.add(stars(300, 30));
+  const W = 0.78, Hh = 1.62;
+  const rect = (w,h,z,col,op=0.5) => lines([-w/2,-h/2,z, w/2,-h/2,z, w/2,-h/2,z, w/2,h/2,z, w/2,h/2,z, -w/2,h/2,z, -w/2,h/2,z, -w/2,-h/2,z], col, op);
+  const root = new THREE.Group(); S.add(root); root.rotation.y = -0.35;
+  const mk = () => new THREE.Group();
+  // display
+  const disp = mk(); disp.add(xray(new THREE.BoxGeometry(W,Hh,0.025), C.cyan, { lineOp:0.7 }));
+  { const g=[]; for (let i=1;i<12;i++){ const y=-Hh/2+i*Hh/12; g.push(-W/2+0.03,y,0.014, W/2-0.03,y,0.014); } disp.add(lines(g, C.cyan, 0.12)); }
+  // frame with antenna segments
+  const frame = mk();
+  { const w=W/2, h=Hh/2, z=0;
+    const segs = [ [[-w+0.12,h],[w-0.12,h]], [[w,h-0.12],[w,0.15]], [[w,0.05],[w,-h+0.12]], [[w-0.12,-h],[-w+0.12,-h]], [[-w,-h+0.12],[-w,-0.05]], [[-w,0.05],[-w,h-0.12]] ];
+    const cols = [C.amber, C.teal, C.amber, C.amber, C.violet, C.teal];
+    segs.forEach(([a,b],i) => frame.add(lines([a[0],a[1],z, b[0],b[1],z], cols[i], 1)));
+    const corners = [[w-0.12,h,w,h-0.12],[w,-h+0.12,w-0.12,-h],[-w+0.12,-h,-w,-h+0.12],[-w,h-0.12,-w+0.12,h]];
+    corners.forEach(c => frame.add(lines([c[0],c[1],z, c[2],c[3],z], C.bone, 0.5)));
+    const mm1 = xray(new THREE.BoxGeometry(0.04,0.22,0.03), C.red, { lineOp:0.9 }); mm1.position.set(w-0.04,0.45,0); frame.add(mm1);
+    const mm2 = xray(new THREE.BoxGeometry(0.22,0.04,0.03), C.red, { lineOp:0.9 }); mm2.position.set(0,h-0.05,0); frame.add(mm2); }
+  // mainboard + SoC/modem
+  const board = mk(); board.position.y = 0.4;
+  board.add(xray(new THREE.BoxGeometry(W-0.08, 0.72, 0.02), C.teal, { opacity:0.55, lineOp:0.5 }));
+  { const tr=[]; for (let i=0;i<14;i++){ const x=-0.3+Math.random()*0.6, y=-0.32+Math.random()*0.64; tr.push(x,y,0.012, x+(Math.random()-.5)*0.3,y,0.012); } board.add(lines(tr, C.teal, 0.35)); }
+  const soc = xray(new THREE.BoxGeometry(0.22,0.22,0.04), C.cyan, { lineOp:1 }); soc.position.set(-0.08,0.08,0.03); board.add(soc);
+  const modem = xray(new THREE.BoxGeometry(0.13,0.13,0.035), C.cyan, { lineOp:1 }); modem.position.set(0.18,0.12,0.03); board.add(modem);
+  // RF front-end
+  const rf = mk(); rf.position.y = 0.4;
+  [[0.2,-0.18,0.1,0.07],[0.05,-0.2,0.08,0.06],[-0.22,-0.2,0.1,0.06],[0.26,0.27,0.07,0.06],[-0.25,0.26,0.07,0.07]].forEach(([x,y,w,h]) => {
+    const c = xray(new THREE.BoxGeometry(w,h,0.03), C.amber, { lineOp:1 }); c.position.set(x,y,0.03); rf.add(c); });
+  // SIM / eSIM
+  const sim = mk(); sim.position.set(-0.22,0.02,0);
+  sim.add(xray(new THREE.BoxGeometry(0.12,0.09,0.008), C.violet, { lineOp:1 }));
+  sim.add(lines([-0.035,-0.025,0.005, 0.035,-0.025,0.005, -0.035,0.0,0.005, 0.035,0.0,0.005, -0.035,0.025,0.005, 0.035,0.025,0.005, 0,-0.035,0.005, 0,0.035,0.005], C.violet, 0.8));
+  // battery
+  const bat = mk(); bat.position.y = -0.38;
+  bat.add(xray(new THREE.BoxGeometry(W-0.12, 0.8, 0.05), C.amber, { opacity:0.6, lineOp:0.6 }));
+  // back
+  const back = mk(); back.add(xray(new THREE.BoxGeometry(W,Hh,0.02), C.bone, { opacity:0.35, lineOp:0.35 }));
+  { const cam = xray(new THREE.CylinderGeometry(0.07,0.07,0.03,24).rotateX(Math.PI/2), C.bone); cam.position.set(-0.22,0.6,-0.02); back.add(cam);
+    const cam2 = cam.clone(); cam2.position.set(-0.22,0.43,-0.02); back.add(cam2); back.add(rect(0.34,0.5,-0.012,C.bone,0.25)); }
+
+  const Z = (z) => V(0,0,z);
+  [disp, frame, board, rf, sim, bat, back].forEach(o => root.add(o));
+  disp.position.z = 0.06; frame.position.z = 0.02; board.position.z = -0.01; rf.position.z = 0.0; sim.position.z = -0.02; bat.position.z = -0.04; back.position.z = -0.075;
+  const parts = [
+    { name:'Дисплей и стекло', obj:disp, dir:Z(1.3), label:V(W/2,0.6,0), desc:'OLED-матрица под защитным стеклом. Для радио это помеха: металлизированные слои экрана экранируют сигнал, поэтому антенны нельзя спрятать за дисплеем, их выносят в рамку по периметру.' },
+    { name:'Антенны в рамке', obj:frame, dir:Z(0.7), label:V(W/2,-0.3,0), cls:'amber', desc:'Металлическая рамка разрезана пластиковыми вставками на сегменты. Каждый сегмент — отдельная антенна, настроенная на свою группу диапазонов: <b>низкие 600–960 МГц</b> (самые длинные), средние 1,7–2,7 ГГц, <b>3,5 ГГц для 5G</b>, Wi-Fi, GNSS. Обычно их 4–8 для MIMO. Красные блоки — модули <b>mmWave</b> с фазированными решётками для 24–40 ГГц. Ладонь расстраивает антенны, поэтому модем постоянно переключается между ними и перенастраивает согласование.' },
+    { name:'SoC и модем', obj:board, dir:Z(0), label:V(-0.08,0.2,0.04), desc:'На главной плате — процессор (<b>SoC</b>) и модем (baseband). Модем реализует весь протокольный стек 3GPP: OFDM, MIMO-декодирование, исправление ошибок, шифрование эфира, измерения сот для хендовера. Часто это отдельный чип со своей ОС реального времени. Он работает и тогда, когда экран выключен.' },
+    { name:'RF-фронтенд', obj:rf, dir:Z(0.4), label:V(0.2,-0.18,0.04), cls:'amber', desc:'Цепочка между модемом и антенной. <b>Трансивер</b> переносит сигнал на несущую частоту. <b>Усилитель мощности</b> (PA) поднимает его до 23–26 dBm. <b>ПАВ/ОАВ-фильтры</b> вырезают свой диапазон, <b>дуплексеры</b> разделяют передачу и приём, малошумящий усилитель (LNA) усиливает слабый входящий сигнал. Модули фронтенда (FEM) содержат десятки фильтров на десятки диапазонов.' },
+    { name:'SIM / eSIM', obj:sim, dir:Z(-0.3), label:V(0,0.06,0), desc:'Защищённый микрокомпьютер с секретным ключом абонента <b>K</b> и номером <b>IMSI</b>. Ключ невозможно считать: SIM лишь вычисляет ответ на случайный вопрос сети (алгоритм MILENAGE/TUAK) и выдаёт сеансовые ключи шифрования. В 5G SIM ещё шифрует идентификатор (SUCI) открытым ключом оператора.' },
+    { name:'Аккумулятор', obj:bat, dir:Z(-0.75), label:V(W/2-0.06,0,0), cls:'amber', desc:'Li-ion 3,8–4,5 В. Радио — один из главных потребителей: при слабом сигнале телефон передаёт на максимальной мощности и разряжается в разы быстрее. Поэтому сеть постоянно управляет мощностью телефона (power control) и отправляет его спать между сеансами (DRX).' },
+    { name:'Задняя крышка', obj:back, dir:Z(-1.3), label:V(-W/2,-0.5,0), desc:'Стекло или пластик прозрачны для радиоволн. Металлическая крышка потребовала бы вырезов для антенн. Под крышкой — катушка беспроводной зарядки и NFC-антенна (13,56 МГц).' },
+  ];
+  specimen(st, parts, { legend:'#phone-legend', slider:'#phone-explode', out:'#phone-explode-out', title:'#phone-title', desc:'#phone-desc' });
+}
+
+/* =========================================================
+   IV. PHYSICS instruments (2D canvas)
+   ========================================================= */
+function fitCanvas(c){ const r = c.getBoundingClientRect(); const d = Math.min(devicePixelRatio, 2); c.width = Math.max(1, r.width*d); c.height = Math.max(1, r.height*d); const x = c.getContext('2d'); x.setTransform(d,0,0,d,0,0); return { x, w:r.width, h:r.height }; }
+const gauss = () => { let u=0,v=0; while(!u) u=Math.random(); while(!v) v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v); };
+function physics(){
+  // QAM
+  const qc = $('#qam'); let Q = fitCanvas(qc); let M = 16, snr = 22;
+  const req = { 4:5, 16:11, 64:17, 256:24 };
+  const read = $('#qam-read');
+  const upd = () => { const b = Math.log2(M); const ok = snr >= req[M];
+    read.innerHTML = `${b} бит/символ · нужно ≳ <b>${req[M]} дБ</b> · ${ok ? '<b style="color:var(--teal)">символы различимы</b>' : '<b style="color:var(--red)">точки сливаются: модем снизит порядок</b>'}`; };
+  document.querySelectorAll('#qam-order .btn').forEach(b => b.addEventListener('click', () => {
+    M = +b.dataset.m; document.querySelectorAll('#qam-order .btn').forEach(o => o.setAttribute('aria-pressed', String(o===b))); Q.x.clearRect(0,0,Q.w,Q.h); upd(); }));
+  $('#qam-snr').addEventListener('input', e => { snr = +e.target.value; $('#qam-snr-out').textContent = snr + ' дБ'; upd(); });
+  upd();
+  const drawQam = () => {
+    const { x, w, h } = Q; const n = Math.sqrt(M); const S = Math.min(w,h)*0.42, cx=w/2, cy=h/2;
+    x.fillStyle = 'rgba(5,10,17,0.16)'; x.fillRect(0,0,w,h);
+    x.strokeStyle = 'rgba(127,227,255,0.18)'; x.lineWidth = 1; x.beginPath(); x.moveTo(cx-S-10,cy); x.lineTo(cx+S+10,cy); x.moveTo(cx,cy-S-10); x.lineTo(cx,cy+S+10); x.stroke();
+    const step = 2/(n-1);
+    // avg power normalisation: noise sigma relative to grid spacing
+    const Es = (n*n-1)/3 * (step/2)**2 * 2; const sigma = Math.sqrt(Es / (2*10**(snr/10)));
+    x.fillStyle = '#ffb547';
+    for (let i=0;i<60;i++){ const a = (Math.floor(Math.random()*n))*step-1, b = (Math.floor(Math.random()*n))*step-1;
+      const px = cx + (a + gauss()*sigma)*S, py = cy - (b + gauss()*sigma)*S; x.globalAlpha = 0.7; x.fillRect(px-1, py-1, 2, 2); }
+    x.globalAlpha = 1; x.fillStyle = '#7fe3ff';
+    for (let i=0;i<n;i++) for (let j=0;j<n;j++){ x.beginPath(); x.arc(cx+(i*step-1)*S, cy-(j*step-1)*S, M>64?1.2:1.8, 0, TAU); x.fill(); }
+    x.fillStyle = 'rgba(130,151,170,1)'; x.font = '11px "IBM Plex Mono", monospace'; x.fillText('I', w-14, cy-6); x.fillText('Q', cx+6, 14);
+  };
+  // OFDM
+  const oc = $('#ofdm'); let O = fitCanvas(oc); let N = 7; const amps = Array.from({length:16}, () => 0.6+Math.random()*0.4);
+  $('#ofdm-n').addEventListener('input', e => { N = +e.target.value; $('#ofdm-n-out').textContent = N; });
+  const cols = ['#7fe3ff','#ffb547','#3ad6b0','#a594ff'];
+  const drawOfdm = (t) => {
+    const { x, w, h } = O; x.clearRect(0,0,w,h);
+    const pad = 16, base = h-26, top = 20; const span = N+3; const X = f => pad + (f+1.5)/span*(w-2*pad);
+    x.strokeStyle = 'rgba(127,227,255,0.15)'; x.beginPath(); x.moveTo(pad,base); x.lineTo(w-pad,base); x.stroke();
+    const sinc = u => u===0 ? 1 : Math.sin(Math.PI*u)/(Math.PI*u);
+    for (let k=0;k<N;k++){ const a = amps[k]*(REDUCE?1:(0.85+0.15*Math.sin(t*2+k)));
+      x.strokeStyle = cols[k%4]; x.globalAlpha = 0.85; x.lineWidth = 1.4; x.beginPath();
+      for (let f=-1.5; f<=N+1.5; f+=0.02){ const y = base - sinc(f-k)*a*(base-top); f===-1.5 ? x.moveTo(X(f),y) : x.lineTo(X(f),y); } x.stroke();
+      x.setLineDash([2,4]); x.strokeStyle = 'rgba(216,227,236,0.25)'; x.beginPath(); x.moveTo(X(k),base); x.lineTo(X(k),top-6); x.stroke(); x.setLineDash([]);
+    }
+    x.globalAlpha = 1; x.fillStyle = 'rgba(130,151,170,1)'; x.font = '11px "IBM Plex Mono", monospace';
+    x.fillText('частота →', w-pad-70, 14); x.fillText('Δf = 15 кГц', pad, 14);
+  };
+  window.addEventListener('resize', () => { Q = fitCanvas(qc); O = fitCanvas(oc); });
+  // FSPL calculator (log sliders)
+  const fs = $('#fs-f'), ds = $('#fs-d');
+  const fOf = v => 600 * Math.pow(40000/600, v/1000), dOf = v => 0.01 * Math.pow(50/0.01, v/1000);
+  const fmtF = f => f >= 1000 ? (f/1000).toFixed(f>=10000?0:1).replace('.',',') + ' ГГц' : Math.round(f) + ' МГц';
+  const fmtD = d => d < 1 ? Math.round(d*1000) + ' м' : d.toFixed(d<10?1:0).replace('.',',') + ' км';
+  const calc = () => { const f = fOf(+fs.value), d = dOf(+ds.value);
+    const L = 20*Math.log10(d) + 20*Math.log10(f) + 32.44; const rx = 46 + 17 - L; const lam = 299.792458/f; // metres
+    $('#fs-f-out').textContent = fmtF(f); $('#fs-d-out').textContent = fmtD(d);
+    $('#fs-loss').textContent = L.toFixed(1).replace('.',',') + ' дБ';
+    $('#fs-rx').textContent = rx.toFixed(0) + ' dBm';
+    $('#fs-lambda').textContent = lam >= 0.1 ? (lam*100).toFixed(1).replace('.',',') + ' см' : (lam*1000).toFixed(1).replace('.',',') + ' мм';
+    $('#fs-ant').textContent = (lam/2 >= 0.1 ? (lam*50).toFixed(1).replace('.',',') + ' см' : (lam*500).toFixed(1).replace('.',',') + ' мм'); };
+  fs.addEventListener('input', calc); ds.addEventListener('input', calc); calc();
+  let vis = { q:false, o:false };
+  new IntersectionObserver(([e]) => vis.q = e.isIntersecting).observe(qc);
+  new IntersectionObserver(([e]) => vis.o = e.isIntersecting).observe(oc);
+  drawQam(); drawOfdm(0);
+  return (t) => { if (vis.q) drawQam(); if (vis.o) drawOfdm(t); };
+}
+
+/* =========================================================
+   V. CELLS & HANDOVER
+   ========================================================= */
+function cellsScene(){
+  const st = safeStage('#cells-stage', { cam:[0,9,8.5], target:[0,0,0.4], fov:42, minPolar:0.2, maxPolar:1.3, fit:6.4 }); if (!st) return;
+  const S = st.scene; const size = 1.35, km = 0.45; // 1 scene unit = 0.45 km
+  const cells = [];
+  const hexPts = (cx, cz, s) => { const p=[]; for (let i=0;i<6;i++){ const a=Math.PI/6+i*Math.PI/3; p.push([cx+Math.cos(a)*s, cz+Math.sin(a)*s]); } return p; };
+  let id = 0;
+  for (let q=-2;q<=2;q++) for (let r=-2;r<=2;r++){ if (Math.abs(q+r) > 2) continue;
+    const cx = size*Math.sqrt(3)*(q + r/2), cz = size*1.5*r; const pts = hexPts(cx, cz, size*0.98);
+    const L=[]; for (let i=0;i<6;i++){ const a=pts[i], b=pts[(i+1)%6]; L.push(a[0],0,a[1], b[0],0,b[1]); }
+    const edge = lines(L, C.cyan, 0.35); S.add(edge);
+    const shape = new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1])));
+    const fill = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI/2), new THREE.MeshBasicMaterial({ color:C.cyan, transparent:true, opacity:0.0, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide }));
+    fill.position.y = -0.01; S.add(fill);
+    const tw = new THREE.Group(); tw.position.set(cx,0,cz); S.add(tw);
+    tw.add(lines([0,0,0, 0,0.9,0], C.bone, 0.7)); const top = glowSprite(C.amber, 0.35); top.position.y = 0.9; tw.add(top);
+    const name = String.fromCharCode(65 + id);
+    const t = tag('Сота ' + name, null, 'amber'); t.position.set(0,1.05,0); tw.add(t); t.element.classList.add('dim');
+    cells.push({ p:V(cx,0.9,cz), fill, edge, top, name, t, rsrp:-140 }); id++;
+  }
+  const phone = xray(new THREE.BoxGeometry(0.16,0.3,0.04), C.cyan, { lineOp:1 }); S.add(phone);
+  const pg = glowSprite(C.cyan, 0.6); phone.add(pg);
+  const ptag = tag('Абонент', null); ptag.position.set(0,0.3,0); phone.add(ptag);
+  const mkLine = (col, op) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6),3)); const l = new THREE.Line(g, lineMat(col, op)); S.add(l); return l; };
+  const servL = mkLine(C.cyan, 0.95), nbrL = mkLine(C.amber, 0.55);
+  // trail
+  const trail = []; for (let i=0;i<=400;i++){ const tt=i/400*TAU*10; trail.push(pathAt(tt)); }
+  S.add(polyline(trail, C.cyan, 0.12));
+  function pathAt(t){ return V(4.1*Math.sin(t*0.23), 0.3, 3.3*Math.sin(t*0.37+1)); }
+  let serving = 0, ttt = 0, hos = 0, hudT = 0, nb = 0, flash = 0;
+  const hud = $('#cells-hud'), hoEl = $('#cells-ho'), cellEl = $('#cells-cell');
+  const setL = (l, a, b) => { const p = l.geometry.attributes.position.array; p.set([a.x,a.y,a.z,b.x,b.y,b.z]); l.geometry.attributes.position.needsUpdate = true; };
+  let simT = 0;
+  st.on((t, dt) => {
+    simT += dt * (REDUCE ? 0.4 : 1) * 1.6;
+    const pos = pathAt(simT); phone.position.copy(pos); phone.rotation.y = simT;
+    cells.forEach(c => { const d = Math.max(0.03, c.p.distanceTo(pos) * km); c.rsrp = 15 - (128.1 + 37.6*Math.log10(d)) + Math.sin(simT*3 + c.p.x)*1.2; });
+    let best = 0; cells.forEach((c,i) => { if (i!==serving && (best===serving || c.rsrp > cells[best].rsrp)) best = i; });
+    if (best === serving) best = (serving+1) % cells.length;
+    nb = best;
+    if (cells[nb].rsrp > cells[serving].rsrp + 3){ ttt += dt; if (ttt > 0.32){ serving = nb; ttt = 0; hos++; flash = 1; hoEl.textContent = hos; } } else ttt = 0;
+    flash = Math.max(0, flash - dt*1.5);
+    cells.forEach((c,i) => { c.fill.material.opacity = i===serving ? 0.13 + flash*0.25 : (i===nb ? 0.04 : 0); c.edge.material.opacity = i===serving ? 0.9 : 0.3; c.t.element.classList.toggle('dim', !(i===serving || i===nb)); });
+    setL(servL, pos, cells[serving].p); setL(nbrL, pos, cells[nb].p);
+    hudT += dt; if (hudT > 0.12){ hudT = 0; const s = cells[serving], n = cells[nb]; const diff = n.rsrp - s.rsrp;
+      cellEl.textContent = 'Сота ' + s.name;
+      hud.innerHTML = `<b>RSRP</b><br><span class="c">● ${s.name} обслуживает: ${s.rsrp.toFixed(1)} dBm</span><br><span class="a">● ${n.name} сосед: ${n.rsrp.toFixed(1)} dBm</span><br>Δ = ${diff>=0?'+':''}${diff.toFixed(1)} дБ ${diff>3 ? `<span class="r">› A3, TTT ${Math.round(ttt*1000)} мс</span>` : ''}${flash>0.5 ? '<br><span class="r">Хендовер выполнен</span>' : ''}`; }
+  });
+}
+
+/* =========================================================
+   VI. SATELLITE
+   ========================================================= */
+function satScene(){
+  const st = safeStage('#sat-stage', { cam:[5.4,2.6,6.6], target:[0,0,0], fov:40, auto:0.5, minPolar:0.2, maxPolar:2.9, fit:3.8 }); if (!st) return;
+  const S = st.scene; S.add(stars(900, 50));
+  // earth limb below
+  const earth = xray(new THREE.SphereGeometry(30, 96, 64), C.cyan, { edges:false, opacity:0.6, power:3 }); earth.position.y = -34; S.add(earth);
+  const mk = () => new THREE.Group();
+  const bus = mk(); bus.add(xray(new THREE.BoxGeometry(1.0,1.3,1.0), C.amber, { lineOp:0.8, power:1.8 }));
+  { const q=[]; for (let i=0;i<10;i++){ const y=-0.6+Math.random()*1.2, x=-0.45+Math.random()*0.9; q.push(x,y,0.505, x+0.15,y+0.05,0.505); } bus.add(lines(q, C.amber, 0.35)); }
+  const solar = mk();
+  for (const s of [-1,1]){ const wing = mk(); wing.position.x = s*1.95;
+    wing.add(xray(new THREE.BoxGeometry(2.8,0.02,1.05), C.violet, { opacity:0.8, lineOp:0.7 }));
+    const g=[]; for (let i=1;i<10;i++){ const x=-1.4+i*0.28; g.push(x,0.012,-0.52, x,0.012,0.52); } for (let j=1;j<4;j++){ const z=-0.52+j*0.26; g.push(-1.4,0.012,z, 1.4,0.012,z); } wing.add(lines(g, C.violet, 0.4));
+    wing.add(lines([-s*1.4,0,0, -s*1.45-0.0,0,0], C.bone, 0.8));
+    const yoke = xray(new THREE.CylinderGeometry(0.03,0.03,0.5,8).rotateZ(Math.PI/2), C.bone); yoke.position.x = -s*1.6; wing.add(yoke);
+    wing.userData.dir = V(s*1.4,0,0); solar.add(wing); }
+  const arr = mk(); arr.position.y = -0.72;
+  arr.add(xray(new THREE.BoxGeometry(1.2,0.05,1.2), C.cyan, { lineOp:0.8 }));
+  const ep=[]; for (let i=0;i<14;i++) for (let j=0;j<14;j++) ep.push(-0.55+i*0.085, -0.03, -0.55+j*0.085);
+  const eg = new THREE.BufferGeometry(); eg.setAttribute('position', new THREE.Float32BufferAttribute(ep,3)); const elems = new THREE.Points(eg, pointMat(C.cyan, 0.04, 1)); arr.add(elems);
+  const beams = [];
+  for (let i=0;i<4;i++){ const cg = new THREE.ConeGeometry(0.45, 3.2, 24, 1, true); cg.translate(0,-1.6,0); cg.rotateX(Math.PI);
+    const cone = xray(cg, C.amber, { edges:false, opacity:0.35, power:1.3 }); cone.rotation.x = Math.PI; arr.add(cone); beams.push({ cone, ph:i*1.6 }); }
+  const dish = mk(); dish.position.set(0,0.1,0.52);
+  { const pts=[]; for (let i=0;i<=12;i++){ const x=i/12*0.4; pts.push(new THREE.Vector2(x, x*x*1.1)); }
+    const lg = new THREE.LatheGeometry(pts, 28); lg.rotateX(Math.PI/2); lg.translate(0,0,0.05); dish.add(xray(lg, C.teal, { lineOp:0.2, thr:10 }));
+    dish.add(xray(new THREE.CylinderGeometry(0.02,0.02,0.4,8).rotateX(Math.PI/2).translate(0,0,0.2), C.teal)); }
+  const isl = mk(); isl.position.y = 0.72;
+  const lasers = [];
+  for (const s of [-1,1]){ const g = mk(); g.position.x = s*0.3;
+    g.add(xray(new THREE.CylinderGeometry(0.09,0.11,0.18,16), C.red, { lineOp:0.8 }));
+    const lens = xray(new THREE.SphereGeometry(0.07,12,8), C.red); lens.position.y = 0.12; g.add(lens);
+    const beam = lines([0,0.12,0, s*7,0.12,s*-3], C.red, 0.6); g.add(beam); lasers.push(beam); isl.add(g); }
+  const prop = mk(); prop.position.set(0,0,-0.55);
+  prop.add(xray(new THREE.CylinderGeometry(0.12,0.2,0.25,20).rotateX(Math.PI/2), C.bone, { lineOp:0.7 }));
+  const plume = xray(new THREE.ConeGeometry(0.18,1.4,20,1,true).rotateX(-Math.PI/2).translate(0,0,-0.85), C.violet, { edges:false, opacity:0.9, power:1.2 }); prop.add(plume);
+  const trk = mk(); trk.position.set(0.38,0.72,-0.32);
+  trk.add(xray(new THREE.BoxGeometry(0.14,0.14,0.18), C.bone, { lineOp:0.8 }));
+  { const t2 = xray(new THREE.CylinderGeometry(0.05,0.05,0.12,12).rotateX(Math.PI/2.5), C.bone); t2.position.set(0,0.1,-0.08); trk.add(t2); }
+
+  const parts = [
+    { name:'Платформа (шина)', obj:bus, dir:V(0,0,0), label:V(0.5,0.4,0.5), cls:'amber', desc:'Корпус с бортовым компьютером, системой ориентации (маховики, магнитные катушки), терморегулированием и шиной питания. Обёрнут <b>многослойной теплоизоляцией</b>: золотистая плёнка держит электронику в диапазоне −20…+50 °C, хотя на солнце снаружи +120 °C, а в тени −150 °C.' },
+    { name:'Солнечные панели', obj:solar, labelOn:solar.children[1], label:V(1.0,0.05,0.5), dir:V(0,0,0), desc:'Арсенид-галлиевые элементы с КПД около 30 % дают несколько киловатт. Панели поворачиваются за Солнцем. Около 35 минут каждого 95-минутного витка спутник в тени Земли и работает от литий-ионных аккумуляторов.' },
+    { name:'Фазированная решётка (абонентские лучи)', obj:arr, dir:V(0,-1.1,0), label:V(0.6,0,0.6), cls:'amber', desc:'Плоская антенна из сотен излучателей. Меняя фазу на каждом, спутник <b>электронно</b> формирует и поворачивает десятки лучей без движущихся частей и удерживает их на одной точке Земли, пока сам летит со скоростью 7,6 км/с. Для режима «прямо в телефон» (direct-to-cell) такая решётка достигает десятков квадратных метров: обычный смартфон с антенной в рамке очень слабый передатчик на расстоянии 500+ км.' },
+    { name:'Антенна шлюза (фидерная линия)', obj:dish, dir:V(0,0.2,1.3), label:V(0,0.35,0.1), desc:'Связь с наземной станцией-шлюзом в диапазонах <b>Ku/Ka (12–30 ГГц)</b>, через которую трафик выходит в интернет и ядро оператора. У «прозрачного» спутника (bent-pipe) сигнал абонента просто переносится на частоту шлюза. «Регенеративный» спутник сам работает как базовая станция gNB на орбите.' },
+    { name:'Лазерные межспутниковые каналы', obj:isl, dir:V(0,1.2,0), label:V(0.3,0.25,0), cls:'red', desc:'Оптические терминалы связывают соседние спутники лучами до <b>100–200 Гбит/с</b> на расстоянии тысяч километров. Трафик идёт по «созвездию», пока не найдётся спутник над шлюзом. В вакууме свет быстрее, чем в стекле волокна (там ~1,47 раза медленнее), поэтому на межконтинентальных маршрутах это может быть быстрее подводного кабеля.' },
+    { name:'Ионный двигатель', obj:prop, dir:V(0,0,-1.3), label:V(0,0.2,-0.2), desc:'Холловский двигатель ускоряет ионы криптона или аргона электрическим полем. Тяга крошечная, но её хватает, чтобы поднять спутник на рабочую орбиту, удерживать позицию в созвездии, уклоняться от мусора и в конце службы свести аппарат в атмосферу, где он сгорит.' },
+    { name:'Звёздный датчик и GNSS', obj:trk, dir:V(0.6,1.0,-0.6), label:V(0,0.12,0), desc:'Камера звёздного датчика сравнивает небо с каталогом и определяет ориентацию с точностью до угловых секунд. GNSS-приёмник даёт положение и время. Без этого лучи не попадут в нужную соту на Земле, а для спутникового 5G телефон должен ещё и компенсировать <b>доплеровский сдвиг</b> до ±24 ppm и меняющуюся задержку.' },
+  ];
+  specimen(st, parts, { legend:'#sat-legend', slider:'#sat-explode', out:'#sat-explode-out', title:'#sat-title', desc:'#sat-desc' });
+  st.on((t) => {
+    beams.forEach((b,i) => { const a = t*0.6 + b.ph; b.cone.rotation.set(Math.PI + Math.sin(a)*0.35, 0, Math.cos(a*1.3)*0.35); });
+    elems.material.size = 0.03 + 0.015*Math.abs(Math.sin(t*4));
+    lasers.forEach((l,i) => l.material.opacity = 0.35 + 0.35*Math.abs(Math.sin(t*2+i)));
+    plume.children[0].material.uniforms.uOpacity.value = 0.6 + 0.3*Math.sin(t*20);
+    earth.rotation.x = t*0.01;
+  });
+}
+
+/* =========================================================
+   VII. INTERCEPTION — fake base station scenario
+   ========================================================= */
+function interceptScene(){
+  const steps = [
+    { t:'Норма', d:'Телефон зарегистрирован в настоящей сети LTE/5G. При подключении прошла <b>взаимная аутентификация (AKA)</b>: SIM проверила, что сеть знает секретный ключ, а сеть проверила SIM. Эфир зашифрован, целостность сигнальных сообщений защищена.', state:0 },
+    { t:'Появляется ложная станция', d:'Рядом включается передатчик, который выдаёт себя за соту того же оператора: транслирует те же коды страны и сети (MCC/MNC). Он стоит ближе и громче, поэтому его сигнал <b>сильнее настоящего</b>.', state:1 },
+    { t:'Перевыбор соты', d:'Телефон в режиме ожидания сам выбирает самую сильную подходящую соту и не может проверить её подлинность заранее: системная информация, которую рассылают все станции, <b>не подписана</b>. Телефон «переезжает» к ложной станции.', state:2 },
+    { t:'Утечка IMSI и понижение до 2G', d:'Ещё до включения защиты ложная станция запрашивает идентификатор. В 4G телефон обязан ответить, и <b>IMSI уходит открытым текстом</b>: так фиксируется присутствие человека. Затем станция отказывает в обслуживании LTE и <b>вынуждает телефон перейти в 2G</b>.', state:3 },
+    { t:'Посредник в 2G', d:'В GSM сеть не доказывает свою подлинность, поэтому телефон «верит» ложной станции. Та выбирает слабый шифр или режим без шифрования и <b>пересылает вызовы в настоящую сеть</b>, оставаясь посередине. 4G и 5G такую подмену не допускают: без ключа SIM ложная станция не пройдёт AKA. Поэтому атака и держится на понижении до 2G.', state:4 },
+  ];
+  const btnBox = $('#int-steps'), title = $('#int-title'), desc = $('#int-desc'), autoBtn = $('#int-auto');
+  let cur = 0, auto = !REDUCE, timer = 0;
+  steps.forEach((s,i) => { const b = document.createElement('button'); b.className='btn danger'; b.type='button'; b.textContent = (i+1) + ' · ' + s.t; b.addEventListener('click', () => { auto=false; autoBtn.setAttribute('aria-pressed','false'); go(i); }); btnBox.appendChild(b); });
+  autoBtn.setAttribute('aria-pressed', String(auto));
+  autoBtn.addEventListener('click', () => { auto=!auto; autoBtn.setAttribute('aria-pressed', String(auto)); timer=0; });
+  function go(i){ cur=i; timer=0; [...btnBox.children].forEach((b,j)=>b.setAttribute('aria-pressed', String(j===i))); title.textContent = steps[i].t; desc.innerHTML = steps[i].d; }
+  go(0);
+
+  const st = safeStage('#int-stage', { cam:[0,5,10], target:[0,1.1,0], fov:42, minPolar:0.4, maxPolar:1.5, fit:6.6 });
+  if (st){
+    const S = st.scene; S.add(grid(24, 24, 0.06));
+    const legit = miniTower(C.cyan); legit.position.set(-4.6,0,-1.2); S.add(legit);
+    const lt = tag('Настоящая БС оператора', null); lt.position.set(0,3.6,0); legit.add(lt);
+    const phone = miniPhone(C.cyan); phone.position.set(0.3,0.9,1.4); S.add(phone);
+    const pt = tag('LTE · защищено', null); pt.position.set(0,0.55,0); phone.add(pt);
+    // fake BTS: van + mast
+    const fake = new THREE.Group(); fake.position.set(3.6,0,0.8); S.add(fake);
+    fake.add(xray(new THREE.BoxGeometry(1.8,0.9,0.9).translate(0,0.65,0), C.red, { lineOp:0.7 }));
+    fake.add(xray(new THREE.BoxGeometry(0.6,0.6,0.88).translate(-1.2,0.5,0), C.red, { lineOp:0.7 }));
+    for (const x of [-1.1,0.55]) for (const z of [-0.42,0.42]) { const w = xray(new THREE.CylinderGeometry(0.2,0.2,0.12,16).rotateX(Math.PI/2).translate(x,0.2,z), C.red, { lineOp:0.4 }); fake.add(w); }
+    fake.add(lines([0.3,1.1,0, 0.3,2.2,0], C.red, 0.9));
+    fake.add(xray(new THREE.BoxGeometry(0.12,0.5,0.06).translate(0.3,2.2,0), C.red, { lineOp:1 }));
+    const ft = tag('Ложная БС (IMSI-catcher)', null, 'red'); ft.position.set(0.3,2.7,0); fake.add(ft);
+    // rings
+    const mkRings = (col, origin, n) => [...Array(n)].map((_,i) => { const m = new THREE.Mesh(new THREE.RingGeometry(0.96,1,64).rotateX(-Math.PI/2), new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide })); m.position.copy(origin); S.add(m); return { m, o:i/n }; });
+    const ringsL = mkRings(C.cyan, V(-4.6,3.0,-1.2), 4), ringsF = mkRings(C.red, V(3.9,2.2,0.8), 5);
+    const mkL = (col) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6),3)); const l = new THREE.Line(g, lineMat(col, 0.9)); S.add(l); return l; };
+    const link = mkL(C.cyan), relay = mkL(C.red);
+    const setL = (l,a,b) => { l.geometry.attributes.position.array.set([a.x,a.y,a.z,b.x,b.y,b.z]); l.geometry.attributes.position.needsUpdate = true; };
+    const pPos = V(0.3,1.25,1.4), lPos = V(-4.6,3.0,-1.2), fPos = V(3.9,2.2,0.8);
+    // IMSI packet
+    const pkt = glowSprite(C.red, 0.35); S.add(pkt); const pktTag = tag('IMSI', null, 'red'); pkt.add(pktTag);
+    st.on((t, dt) => {
+      const s = steps[cur].state;
+      ringsL.forEach(r => { r.o = (r.o + dt*0.35) % 1; r.m.scale.setScalar(0.3 + r.o*5); r.m.material.opacity = 0.5*(1-r.o); });
+      ringsF.forEach(r => { r.o = (r.o + dt*0.5) % 1; r.m.scale.setScalar(0.3 + r.o*7.5); r.m.material.opacity = s>=1 ? 0.75*(1-r.o) : 0; });
+      setGlow(fake, s>=1 ? 1.2 : 0.15); ft.element.classList.toggle('hide', s<1);
+      if (s >= 2){ setL(link, pPos, fPos); link.material.color.setHex(C.red); } else { setL(link, pPos, lPos); link.material.color.setHex(C.cyan); }
+      link.material.opacity = 0.5 + 0.4*Math.abs(Math.sin(t*4));
+      if (s >= 4){ setL(relay, fPos, lPos); relay.material.opacity = 0.35 + 0.35*Math.abs(Math.sin(t*6)); } else { relay.material.opacity = 0; }
+      const label = ['LTE · защищено','LTE · сота подменяется','LTE · ложная сота','IMSI раскрыт → 2G','2G · слабый шифр'][s];
+      if (pt.element.dataset.s !== String(s)){ pt.element.dataset.s = s; pt.element.className = 'tag ' + (s>=2 ? 'red' : ''); pt.element.innerHTML = `<span>${label}</span>`; }
+      if (s === 3){ const k = (t*0.6) % 1; pkt.visible = true; pktTag.element.classList.remove('hide'); pkt.position.lerpVectors(pPos, fPos, k); }
+      else { pkt.visible = false; pktTag.element.classList.add('hide'); }
+    });
+  }
+  return (dt) => { if (!auto) return; timer += dt; if (timer > 6.5) go((cur+1) % steps.length); };
+}
+
+/* ---------- boot ---------- */
+const run = (f) => { try { return f(); } catch(e){ console.error(e); } };
+run(hero);
+const pathTick = run(pathScene);
+run(towerScene);
+run(phoneScene);
+const physTick = run(physics);
+run(cellsScene);
+run(satScene);
+const intTick = run(interceptScene);
+const clock = new THREE.Clock();
+function loop(){
+  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+  for (const s of stages) s.frame(t, dt);
+  pathTick && pathTick(dt); intTick && intTick(dt); physTick && physTick(t);
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
