@@ -319,6 +319,20 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-bet
         <ul class="legend" id="phone-legend"></ul>
       </aside>
     </div>
+    <div class="prose">
+      <article>
+        <h4>IMEI — паспорт аппарата</h4>
+        <p><b>International Mobile Equipment Identity</b>: 15 цифр, записанных в модем на заводе. Первые 8 цифр (TAC) обозначают производителя и модель, следующие 6 — серийный номер, последняя — контрольная цифра по алгоритму Луна. IMEI не меняется при смене SIM-карты. Узнать его можно, набрав <b>*#06#</b>.</p>
+      </article>
+      <article>
+        <h4>IMSI — номер абонента</h4>
+        <p><b>International Mobile Subscriber Identity</b>: до 15 цифр в SIM-карте. Код страны (MCC, у Казахстана 401, у России 250), код оператора (MNC) и номер абонента. По IMSI сеть находит ваш профиль и секретный ключ. Телефонный номер (MSISDN) — отдельная запись, привязанная к IMSI в базе оператора.</p>
+      </article>
+      <article>
+        <h4>Зачем сети оба номера</h4>
+        <p>IMEI отвечает на вопрос «какое устройство», IMSI — «какой абонент». По IMEI оператор может заблокировать украденный телефон через общий реестр (EIR), а государство — вести реестр ввезённых аппаратов. По IMSI проходят аутентификация и тарификация. Поэтому смена SIM меняет «кто вы», но не меняет «чем вы звоните».</p>
+      </article>
+    </div>
   </div>
 </section>
 
@@ -604,6 +618,7 @@ function stars(n=600, r=40){
 
 /* ---------- stage: one renderer per specimen, renders only when visible ---------- */
 const stages = [];
+window.__atlas = { stages:{}, ui:{} };
 class Stage {
   constructor(el, { cam=[0,2,10], target=[0,0,0], fov=40, auto=0, minPolar=0.2, maxPolar=Math.PI/2, fit=0 }={}){
     this.el = el; this.fit = fit; this.cam0 = V(...cam); this.tgt0 = V(...target);
@@ -624,7 +639,7 @@ class Stage {
     this.updaters = []; this.visible = false;
     new IntersectionObserver(([e]) => this.visible = e.isIntersecting, { rootMargin:'120px' }).observe(el);
     new ResizeObserver(() => this.resize()).observe(el);
-    this.resize(); stages.push(this);
+    this.resize(); stages.push(this); window.__atlas.stages[el.id] = this;
   }
   resize(){
     const w = this.el.clientWidth, h = this.el.clientHeight; if (!w || !h) return;
@@ -1277,13 +1292,16 @@ run(cellsScene);
 run(satScene);
 const intTick = run(interceptScene);
 const clock = new THREE.Clock();
-function loop(){
-  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+let simTime = 0;
+function step(dt){
+  simTime += dt; const t = simTime;
   for (const s of stages) s.frame(t, dt);
   pathTick && pathTick(dt); intTick && intTick(dt); physTick && physTick(t);
-  requestAnimationFrame(loop);
 }
-loop();
+function loop(){ step(Math.min(clock.getDelta(), 0.05)); requestAnimationFrame(loop); }
+// ?capture: frames are advanced by the recorder (deterministic video export)
+if (new URLSearchParams(location.search).has('capture')) { window.__atlas.step = step; step(1/30); }
+else loop();
 </script>
 </body>
 </html>
