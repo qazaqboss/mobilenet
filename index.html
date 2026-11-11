@@ -212,12 +212,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
 .gsub{position:fixed;z-index:39;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom, 0px));width:min(860px, calc(100% - 32px));text-align:center;font:500 16px/1.45 var(--f-body);color:#eef5fb;background:rgba(5,10,17,.88);border:1px solid rgba(127,227,255,.22);border-radius:12px;padding:10px 16px;text-wrap:balance}
 @media (max-width:520px){.gsub{font-size:14px}.guide .bar{width:90px}}
 </style>
-<script type="importmap">
-{ "imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-} }
-</script>
+
 </head>
 <body>
 
@@ -560,10 +555,13 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
 <div class="gsub" id="g-sub" hidden></div>
 <audio id="g-audio" preload="metadata" src="audio/narration.mp3"></audio>
 
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/renderers/CSS2DRenderer.js"></script>
+<script>
+(() => {
+if (!window.THREE) { document.querySelectorAll('.stage,.hero-stage').forEach(el => { const d = document.createElement('div'); d.className = 'nogl'; d.textContent = 'Не удалось загрузить библиотеку 3D (Three.js). Проверьте подключение к интернету и обновите страницу.'; el.appendChild(d); }); return; }
+const { OrbitControls, CSS2DRenderer, CSS2DObject } = THREE;
 
 const $ = s => document.querySelector(s);
 const C = { cyan:0x7fe3ff, amber:0xffb547, red:0xff5d5d, bone:0xd8e3ec, teal:0x3ad6b0, violet:0xa594ff };
@@ -614,7 +612,7 @@ function polyline(pts, color, op=0.5){
 function tag(text, num, cls=''){
   const d = document.createElement('div'); d.className = 'tag ' + cls;
   d.innerHTML = `<span>${num!=null ? `<i>${num}</i>` : ''}${text}</span>`;
-  const o = new CSS2DObject(d); o.center.set(0.5,0.5); return o;
+  return new CSS2DObject(d);
 }
 function glowSprite(color, size=0.5){
   const c = document.createElement('canvas'); c.width = c.height = 64;
@@ -1323,6 +1321,7 @@ function loop(){ step(Math.min(clock.getDelta(), 0.05)); requestAnimationFrame(l
 // ?capture: frames are advanced by the recorder (deterministic video export)
 if (new URLSearchParams(location.search).has('capture')) { window.__atlas.step = step; step(1/30); }
 else loop();
+})();
 </script>
 <script>
 /* ---------- audio guide: narration in the VoiceStudio demo voice ---------- */
