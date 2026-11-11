@@ -198,6 +198,19 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-bet
   .tag span{font-size:9.5px;padding:3px 5px}
   .hero .lead{font-size:16px}
 }
+/* audio guide */
+section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
+.guide{position:fixed;z-index:40;right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(16px + env(safe-area-inset-bottom, 0px));display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:99px;background:rgba(9,19,30,.92);border:1px solid rgba(127,227,255,.35);box-shadow:0 8px 30px rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.guide button{all:unset;cursor:pointer;width:40px;height:40px;border-radius:50%;background:var(--cyan);color:var(--ink);display:grid;place-items:center}
+.guide button:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.guide svg{width:16px;height:16px;fill:currentColor}
+.guide .gl{display:grid;gap:5px;min-width:0}
+.guide .gl b{font:500 12px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--fg)}
+.guide .gl span{font:12px/1 var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.guide .bar{height:3px;width:150px;max-width:36vw;background:var(--rule);border-radius:3px;overflow:hidden;cursor:pointer}
+.guide .bar i{display:block;height:100%;width:0;background:var(--cyan)}
+.gsub{position:fixed;z-index:39;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom, 0px));width:min(860px, calc(100% - 32px));text-align:center;font:500 16px/1.45 var(--f-body);color:#eef5fb;background:rgba(5,10,17,.88);border:1px solid rgba(127,227,255,.22);border-radius:12px;padding:10px 16px;text-wrap:balance}
+@media (max-width:520px){.gsub{font-size:14px}.guide .bar{width:90px}}
 </style>
 <script type="importmap">
 { "imports": {
@@ -539,6 +552,13 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-bet
     <p class="mono">Источники: спецификации 3GPP TS 33.501, 36.300, 38.300 · ITU-R P.525 · GSMA FS.11</p>
   </div>
 </footer>
+
+<div class="guide" id="guide">
+  <button type="button" id="g-play" aria-label="Слушать аудиогид"><svg viewBox="0 0 16 16" id="g-ico"><path d="M4 2.5v11l9-5.5z"/></svg></button>
+  <div class="gl"><b>Аудиогид</b><div class="bar" id="g-bar" role="progressbar" aria-label="Прогресс аудиогида"><i id="g-fill"></i></div><span id="g-time">0:00 / 5:43</span></div>
+</div>
+<div class="gsub" id="g-sub" hidden></div>
+<audio id="g-audio" preload="metadata" src="audio/narration.mp3"></audio>
 
 <script type="module">
 import * as THREE from 'three';
@@ -1281,6 +1301,7 @@ function interceptScene(){
   return (dt) => { if (!auto) return; timer += dt; if (timer > 6.5) go((cur+1) % steps.length); };
 }
 
+
 /* ---------- boot ---------- */
 const run = (f) => { try { return f(); } catch(e){ console.error(e); } };
 run(hero);
@@ -1302,6 +1323,36 @@ function loop(){ step(Math.min(clock.getDelta(), 0.05)); requestAnimationFrame(l
 // ?capture: frames are advanced by the recorder (deterministic video export)
 if (new URLSearchParams(location.search).has('capture')) { window.__atlas.step = step; step(1/30); }
 else loop();
+</script>
+<script>
+/* ---------- audio guide: narration in the VoiceStudio demo voice ---------- */
+(() => {
+  const $ = q => document.querySelector(q);
+  const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const G = [[0, "s00", "Привет! Это видеопрезентация атласа «Анатомия сотовой связи». Разберём, как голос превращается в радиоволну, проходит через вышку, оптоволокно и ядро сети и снова становится голосом. А в конце — почему связь можно перехватить."], [18.88, "s01", "Земля в режиме рентгена: оранжевые кольца — базовые станции, зелёные дуги — линии связи между ними. Над Землёй — низкие спутники на 550 км и геостационарный на 35 786 км."], [37.82, "s02", "Между телефонами нет прямого радиоканала. Микрофон и кодек превращают голос в цифровой поток ~13 кбит/с, модем добавляет коды исправления ошибок и раскладывает биты по поднесущим OFDM."], [56.09, "s03", "Телефон излучает волну мощностью 0,2 Вт. Радиоблок на мачте оцифровывает сигнал, цифровой блок BBU внизу демодулирует и расшифровывает его."], [69.37, "s04", "Пакеты идут по оптоволокну в ядро сети. Ядро находит абонента B, вторая вышка передаёт ему сигнал. Задержка «рот → ухо» — 100–200 мс."], [83.11, "s05", "Вышка — только опора. Базовая станция распределена по высоте. Разберём её."], [92.39, "s06", "Наверху три секторные антенны по 120°. Оранжевые лепестки — куда уходит энергия. Рядом радиоблоки RRU, ниже — тарелка радиорелейной линии."], [109.9, "s07", "Внизу шкаф: цифровой блок BBU — мозг станции, выпрямители и аккумуляторы, климат-система. Под ним фундамент и контур заземления."], [125.06, "s08", "В смартфоне антенны спрятаны в металлической рамке, разрезанной на сегменты. На плате модем и RF-фронтенд, отдельно SIM-карта с секретным ключом."], [142.65, "s09", "IMEI — 15-значный серийный номер аппарата, зашит в модем и не меняется при смене SIM. IMSI — номер абонента в SIM-карте. IMEI — «какой телефон», IMSI — «кто вы в сети»."], [177.52, "s10", "Физика: созвездие QAM — биты на амплитуде и фазе; поднесущие OFDM перекрываются, не мешая; калькулятор затухания — почему низкие частоты дают покрытие, а высокие скорость."], [198.71, "s11", "Хендовер: телефон измеряет сигнал своей и соседних сот. Если сосед сильнее на 3 дБ дольше 320 мс, сеть переключает абонента без разрыва звонка."], [214.63, "s12", "Зачем спутники? Вышки не поставить в океане, пустыне, горах и тайге — это большая часть планеты. Один спутник накрывает сотни километров. LEO летят со скоростью 7,6 км/с, поэтому их тысячи и они связаны лазерами."], [244.03, "s13", "Солнечные панели дают энергию, фазированная решётка снизу электронно формирует лучи, антенна шлюза отправляет трафик на Землю, ионный двигатель держит орбиту. Сигнал через GEO идёт туда-обратно ~0,5 с."], [268.99, "s14", "Почему возможен перехват? Радио слышат все, поэтому защита — криптография. Ложная базовая станция выдаёт себя за вышку оператора и светит сильнее — телефон сам переходит к ней."], [285.98, "s15", "Она запрашивает IMSI и заставляет телефон перейти в 2G, где сеть не доказывает подлинность, а шифры слабые. В 4G/5G подмена без ключа SIM не проходит."], [306.7, "s16", "Есть и другие пути: сигнальная сеть SS7, законный перехват у оператора, шпионские программы. Защита: отключите 2G, используйте сквозное шифрование, не входите по SMS-кодам."], [328.5, "s17", "От аналоговой 1G до 5G с лучом на каждого абонента. Спасибо за просмотр! Все модели на сайте можно вращать и разбирать самостоятельно."]];
+  const where = { s00:'#top', s01:'#top', s02:'#path', s03:'#path', s04:'#path', s05:'#tower', s06:'#tower', s07:'#tower', s08:'#phone', s09:'#phone .prose', s10:'#physics', s11:'#cells', s12:'#satellite', s13:'#satellite', s14:'#intercept', s15:'#intercept', s16:'#intercept .cards', s17:'#generations' };
+  const acts = { s02:()=>$('#path-steps > :nth-child(1)')?.click(), s03:()=>$('#path-steps > :nth-child(3)')?.click(), s04:()=>$('#path-steps > :nth-child(5)')?.click(),
+    s06:()=>$('#tower-legend li:nth-child(2) button')?.click(), s07:()=>$('#tower-legend li:nth-child(9) button')?.click(), s08:()=>$('#phone-legend li:nth-child(2) button')?.click(),
+    s13:()=>$('#sat-legend li:nth-child(3) button')?.click(), s14:()=>$('#int-steps > :nth-child(2)')?.click(), s15:()=>$('#int-steps > :nth-child(4)')?.click() };
+  const au = $('#g-audio'), btn = $('#g-play'), ico = $('#g-ico'), fill = $('#g-fill'), tm = $('#g-time'), sub = $('#g-sub'), bar = $('#g-bar');
+  const fmt = x => `${Math.floor(x/60)}:${String(Math.floor(x%60)).padStart(2,'0')}`;
+  let curSeg = null;
+  const PLAY = '<path d="M4 2.5v11l9-5.5z"/>', PAUSE = '<path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/>';
+  btn.addEventListener('click', () => { if (au.paused) au.play().catch(()=>{}); else au.pause(); });
+  au.addEventListener('play', () => { ico.innerHTML = PAUSE; btn.setAttribute('aria-label','Пауза'); sub.hidden = false; curSeg = null; });
+  au.addEventListener('pause', () => { ico.innerHTML = PLAY; btn.setAttribute('aria-label','Слушать аудиогид'); });
+  au.addEventListener('ended', () => { sub.hidden = true; });
+  bar.addEventListener('click', e => { const r = bar.getBoundingClientRect(); const d = au.duration || G.at(-1)[0]; au.currentTime = (e.clientX - r.left) / r.width * d; curSeg = null; });
+  au.addEventListener('timeupdate', () => {
+    const t = au.currentTime, d = au.duration || 343;
+    fill.style.width = (t / d * 100) + '%'; tm.textContent = `${fmt(t)} / ${fmt(d)}`;
+    let seg = G[0]; for (const g of G) if (t >= g[0]) seg = g;
+    if (seg[1] !== curSeg){ curSeg = seg[1]; sub.textContent = seg[2];
+      const el = $(where[curSeg]); if (el) el.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: curSeg==='s09'||curSeg==='s16' ? 'center' : 'start' });
+      acts[curSeg] && acts[curSeg](); }
+  });
+})();
+
 </script>
 </body>
 </html>
