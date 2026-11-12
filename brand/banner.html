@@ -1,0 +1,44 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;1,500;1,600&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1200px;height:630px;overflow:hidden;background:#050a11}
+body{position:relative;color:#d8e3ec;font-family:"IBM Plex Sans",sans-serif;
+  background:
+   radial-gradient(700px 520px at 86% 50%, rgba(127,227,255,.16), transparent 62%),
+   radial-gradient(520px 380px at 8% 105%, rgba(255,181,71,.10), transparent 60%),
+   linear-gradient(rgba(127,227,255,.07) 1px, transparent 1px) 0 0/40px 40px,
+   linear-gradient(90deg, rgba(127,227,255,.07) 1px, transparent 1px) 0 0/40px 40px, #050a11}
+.globe{position:absolute;right:-40px;top:50%;width:680px;height:680px;transform:translateY(-50%);mix-blend-mode:lighten;
+  -webkit-mask:radial-gradient(circle at 50% 50%, #000 60%, transparent 72%);mask:radial-gradient(circle at 50% 50%, #000 60%, transparent 72%)}
+.frame{position:absolute;inset:22px;border:1px solid rgba(127,227,255,.18);border-radius:18px}
+.tick{position:absolute;width:14px;height:14px;border-color:#7fe3ff;border-style:solid}
+.t1{left:22px;top:22px;border-width:2px 0 0 2px;border-radius:18px 0 0 0}.t2{right:22px;top:22px;border-width:2px 2px 0 0;border-radius:0 18px 0 0}
+.t3{left:22px;bottom:22px;border-width:0 0 2px 2px;border-radius:0 0 0 18px}.t4{right:22px;bottom:22px;border-width:0 2px 2px 0;border-radius:0 0 18px 0}
+.txt{position:absolute;left:72px;top:70px;width:640px}
+.eye{font:500 15px/1 "IBM Plex Mono",monospace;letter-spacing:.2em;text-transform:uppercase;color:#8297aa}
+.eye b{color:#7fe3ff;font-weight:500}
+h1{margin-top:22px;font:500 108px/.9 "Cormorant",Georgia,serif;letter-spacing:-.005em}
+h1 em{font-style:italic;font-weight:600;color:#7fe3ff}
+p.lead{margin-top:24px;font-size:23px;line-height:1.4;color:#b9c7d3;width:560px}
+.chips{position:absolute;left:72px;bottom:66px;display:flex;gap:10px}
+.chip{font:500 14px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;padding:10px 13px;border:1px solid rgba(127,227,255,.3);border-radius:8px;color:#d8e3ec;background:rgba(5,10,17,.7)}
+.chip.a{border-color:rgba(255,181,71,.5);color:#ffb547}.chip.r{border-color:rgba(255,93,93,.55);color:#ff9d9d}
+.url{position:absolute;right:62px;bottom:62px;font:500 15px/1 "IBM Plex Mono",monospace;color:#8297aa;letter-spacing:.04em}
+.url b{color:#d8e3ec;font-weight:500}
+.lab{position:absolute;font:500 13px/1 "IBM Plex Mono",monospace;color:#d8e3ec;padding:6px 9px;border-radius:6px;background:rgba(5,10,17,.8);border:1px solid rgba(255,181,71,.45)}
+.lab::before{content:"";position:absolute;left:-22px;top:50%;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;background:#ffb547;box-shadow:0 0 12px #ffb547}
+.lab.c{border-color:rgba(127,227,255,.45)}.lab.c::before{background:#7fe3ff;box-shadow:0 0 12px #7fe3ff}
+</style></head><body>
+<img class="globe" src="globe.png" alt="">
+<div class="frame"></div><i class="tick t1"></i><i class="tick t2"></i><i class="tick t3"></i><i class="tick t4"></i>
+<div class="txt">
+  <p class="eye">Интерактивный 3D-атлас · <b>7 таблиц</b></p>
+  <h1>Анатомия<br><em>сотовой</em> связи</h1>
+  <p class="lead">Как сигнал идёт от антенны до антенны, из чего состоят вышка, смартфон и спутник и почему возможен перехват.</p>
+</div>
+<div class="chips"><span class="chip">Вышка</span><span class="chip">Смартфон</span><span class="chip">Спутник</span><span class="chip a">5G · OFDM</span><span class="chip r">Перехват</span></div>
+<span class="lab" style="left:950px;top:96px">LEO · 550 км</span>
+<span class="lab c" style="left:1010px;top:452px">Базовая станция</span>
+<p class="url"><b>mobilenet-blue</b>.vercel.app</p>
+</body></html>
