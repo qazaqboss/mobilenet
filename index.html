@@ -555,9 +555,9 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
 <div class="gsub" id="g-sub" hidden></div>
 <audio id="g-audio" preload="metadata" src="audio/narration.mp3"></audio>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/renderers/CSS2DRenderer.js"></script>
+<script src="vendor/three/three.min.js"></script>
+<script src="vendor/three/OrbitControls.js"></script>
+<script src="vendor/three/CSS2DRenderer.js"></script>
 <script>
 (() => {
 if (!window.THREE) { document.querySelectorAll('.stage,.hero-stage').forEach(el => { const d = document.createElement('div'); d.className = 'nogl'; d.textContent = 'Не удалось загрузить библиотеку 3D (Three.js). Проверьте подключение к интернету и обновите страницу.'; el.appendChild(d); }); return; }
