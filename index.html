@@ -86,7 +86,7 @@ section.plate{padding-block:84px 24px;border-bottom:1px solid var(--rule)}
 }
 .stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center, transparent 40%, rgba(5,10,17,.85) 100%)}
 .stage canvas{display:block}
-.stage .labels{position:absolute;inset:0;z-index:2}
+.stage .labels,.hero-stage .labels{position:absolute;inset:0;z-index:2}
 .stage .hint{position:absolute;left:14px;bottom:12px;z-index:3;font:11px/1 var(--f-mono);letter-spacing:.08em;color:var(--muted);pointer-events:none}
 .stage .fig{position:absolute;left:14px;top:12px;z-index:3;font:500 11px/1.3 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);pointer-events:none}
 .stage .fig b{color:var(--fg);font-weight:500}
@@ -637,16 +637,30 @@ function stars(n=600, r=40){
 /* ---------- stage: one renderer per specimen, renders only when visible ---------- */
 const stages = [];
 window.__atlas = { stages:{}, ui:{} };
+/* One shared WebGL context for every stage: phones drop contexts beyond a handful,
+   so each stage draws the shared canvas into its own 2D canvas. */
+const MOBILE = matchMedia('(pointer: coarse)').matches || Math.min(screen.width, screen.height) < 700;
+const DPR = Math.min(devicePixelRatio || 1, MOBILE ? 1.5 : 2);
+let GL = null;
+function sharedGL(){
+  if (GL) return GL;
+  GL = new THREE.WebGLRenderer({ antialias: !MOBILE, alpha:true, powerPreference: MOBILE ? 'default' : 'high-performance' });
+  GL.setPixelRatio(1); GL.setClearColor(0x000000, 0); GL.autoClear = false;
+  GL.userData = { w:1, h:1 };
+  GL.domElement.addEventListener('webglcontextlost', e => e.preventDefault());
+  return GL;
+}
 class Stage {
   constructor(el, { cam=[0,2,10], target=[0,0,0], fov=40, auto=0, minPolar=0.2, maxPolar=Math.PI/2, fit=0 }={}){
     this.el = el; this.fit = fit; this.cam0 = V(...cam); this.tgt0 = V(...target);
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(fov, 1, 0.1, 300);
     this.camera.position.set(...cam);
-    this.renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    this.renderer.setClearColor(0x000000, 0);
-    el.appendChild(this.renderer.domElement);
+    this.gl = sharedGL();
+    this.canvas = document.createElement('canvas');
+    this.canvas.style.cssText = 'display:block;width:100%;height:100%;position:absolute;inset:0';
+    this.ctx = this.canvas.getContext('2d');
+    el.appendChild(this.canvas);
     this.labels = new CSS2DRenderer(); this.labels.domElement.className = 'labels'; el.appendChild(this.labels.domElement);
     this.controls = new OrbitControls(this.camera, this.labels.domElement);
     this.controls.target.set(...target);
@@ -661,7 +675,10 @@ class Stage {
   }
   resize(){
     const w = this.el.clientWidth, h = this.el.clientHeight; if (!w || !h) return;
-    this.renderer.setSize(w, h); this.labels.setSize(w, h);
+    this.cw = Math.round(w*DPR); this.ch = Math.round(h*DPR);
+    this.canvas.width = this.cw; this.canvas.height = this.ch; this.labels.setSize(w, h);
+    const u = this.gl.userData;
+    if (this.cw > u.w || this.ch > u.h){ u.w = Math.max(u.w, this.cw); u.h = Math.max(u.h, this.ch); this.gl.setSize(u.w, u.h, false); }
     this.camera.aspect = w / h;
     if (this.fit){ const d0 = this.cam0.distanceTo(this.tgt0); const need = this.fit / (Math.tan(this.camera.fov*Math.PI/360) * this.camera.aspect);
       const dir = this.cam0.clone().sub(this.tgt0).normalize(); this.camera.position.copy(this.tgt0).addScaledVector(dir, Math.max(d0, need)); }
@@ -672,7 +689,11 @@ class Stage {
     if (!this.visible) return;
     for (const f of this.updaters) f(t, dt);
     this.controls.update();
-    this.renderer.render(this.scene, this.camera);
+    const g = this.gl, u = g.userData, w = this.cw, h = this.ch;
+    g.setViewport(0, 0, w, h); g.setScissor(0, 0, w, h); g.setScissorTest(true); g.clear();
+    g.render(this.scene, this.camera);
+    this.ctx.clearRect(0, 0, w, h);
+    this.ctx.drawImage(g.domElement, 0, u.h - h, w, h, 0, 0, w, h);
     this.labels.render(this.scene, this.camera);
   }
 }
