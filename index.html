@@ -200,7 +200,10 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-bet
 
 @media (max-width: 980px){
   .hero .grid{grid-template-columns:minmax(0,1fr)}
-  .hero-stage{height:420px;min-height:0;order:-1}
+  .hero-stage{height:280px;min-height:0;order:-1}
+  .hero .grid{padding-block:8px 28px;gap:8px}
+  .hero .grid > div:not(.hero-stage){display:flex;flex-direction:column}
+  .hero .grid .eyebrow{order:1} .hero .grid h1{order:2} .hero .grid .listen-hero{order:3;margin-top:18px;align-self:flex-start} .hero .grid .lead{order:4} .hero .grid .facts{order:5}
   .plate-head{grid-template-columns:minmax(0,1fr)}
   .specimen{grid-template-columns:minmax(0,1fr)}
   .side{border-left:0;border-top:1px solid var(--rule)}
@@ -214,6 +217,18 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-bet
   .tag span{font-size:9.5px;padding:3px 5px}
   .hero .lead{font-size:16px}
 }
+.listen-hero{all:unset;box-sizing:border-box;cursor:pointer;margin-top:26px;display:inline-flex;align-items:center;gap:14px;padding:12px 20px 12px 14px;border-radius:14px;background:var(--cyan);color:var(--ink);box-shadow:0 0 0 6px rgba(127,227,255,.12),0 10px 30px rgba(127,227,255,.18)}
+.listen-hero svg{width:30px;height:30px;fill:currentColor}
+.listen-hero span{display:grid;gap:3px}
+.listen-hero b{font:600 18px/1.1 var(--f-body)}
+.listen-hero small{font:500 12px/1.2 var(--f-mono);opacity:.75}
+.listen-hero:hover{filter:brightness(1.08)}
+.listen-hero:focus-visible,.listen:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.listen{all:unset;box-sizing:border-box;cursor:pointer;margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid rgba(127,227,255,.35);border-radius:99px;font:500 12px/1 var(--f-mono);letter-spacing:.06em;color:var(--cyan)}
+.listen svg{width:15px;height:15px;fill:currentColor}
+.listen:hover,.listen.on{background:var(--cyan);color:var(--ink)}
+.listen-hero.on{background:var(--amber)}
+.g-err{color:var(--red)!important}
 /* audio guide */
 section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
 .guide{position:fixed;z-index:40;right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(16px + env(safe-area-inset-bottom, 0px));display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:99px;background:rgba(9,19,30,.92);border:1px solid rgba(127,227,255,.35);box-shadow:0 8px 30px rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -254,6 +269,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
       <p class="eyebrow">Атлас радиосвязи · <b>7 таблиц</b> · 3D-препараты</p>
       <h1>Анатомия <em>сотовой</em> связи</h1>
       <p class="lead">Как голос превращается в радиоволну, проходит через вышку, оптоволокно и ядро сети и снова становится голосом за несколько десятков миллисекунд. Разбираем каждый узел, как в анатомическом атласе: от антенны в рамке смартфона до спутника на высоте 550 км. Отдельная таблица объясняет, почему связь вообще можно перехватить и как от этого защищаются.</p>
+      <button type="button" class="listen-hero" data-seg="s00"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span><b>Слушать аудиогид</b><small>голос рассказывает и ведёт по сайту · 5:43</small></span></button>
       <div class="facts">
         <div><b>299 792</b><span>км/с — скорость радиоволны в вакууме</span></div>
         <div><b>16,7 см</b><span>длина волны на частоте 1800 МГц (λ = c / f)</span></div>
@@ -271,6 +287,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
     <div class="plate-head">
       <div>
         <p class="eyebrow">Таблица <b>I</b> · сквозной маршрут</p>
+        <button type="button" class="listen" data-seg="s02"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать раздел</button>
         <h2>Путь сигнала: <em>от антенны до антенны</em></h2>
       </div>
       <p>Звонок — это не прямой радиоканал между двумя телефонами. Радио есть только на «последних метрах»: от вашего телефона до ближайшей вышки и от вышки до собеседника. Всё остальное — оптоволокно, коммутаторы и ядро сети оператора. Пройдите маршрут по шагам.</p>
@@ -294,6 +311,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
     <div class="plate-head">
       <div>
         <p class="eyebrow">Таблица <b>II</b> · базовая станция eNodeB / gNodeB</p>
+        <button type="button" class="listen" data-seg="s05"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать раздел</button>
         <h2>Анатомия <em>вышки</em></h2>
       </div>
       <p>Вышка — это только опора. Сама «базовая станция» распределена по высоте: наверху антенны и радиоблоки, внизу — цифровой модуль обработки, питание и транспорт к ядру сети. Сдвиньте ползунок, чтобы разобрать конструкцию, и выберите узел в легенде.</p>
@@ -330,6 +348,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
     <div class="plate-head">
       <div>
         <p class="eyebrow">Таблица <b>III</b> · абонентский терминал (UE)</p>
+        <button type="button" class="listen" data-seg="s08"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать раздел</button>
         <h2>Анатомия <em>смартфона</em></h2>
       </div>
       <p>В телефоне радиотракт занимает меньше места, чем батарея, но это самая сложная часть: десятки частотных диапазонов, усилители, фильтры и модем, который тысячи раз в секунду договаривается с вышкой о мощности и скорости.</p>
@@ -366,6 +385,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
     <div class="plate-head">
       <div>
         <p class="eyebrow">Таблица <b>IV</b> · радиоинтерфейс</p>
+        <button type="button" class="listen" data-seg="s10"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать раздел</button>
         <h2>Физика: <em>как биты садятся на волну</em></h2>
       </div>
       <p>Антенна излучает электромагнитную волну с частотой несущей. Чтобы передать данные, у волны меняют амплитуду и фазу (модуляция), а сам канал режут на сотни узких поднесущих (OFDM). Три прибора ниже можно крутить.</p>
@@ -425,6 +445,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
     <div class="plate-head">
       <div>
         <p class="eyebrow">Таблица <b>V</b> · мобильность</p>
+        <button type="button" class="listen" data-seg="s11"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать раздел</button>
         <h2>Соты и <em>хендовер</em></h2>
       </div>
       <p>Территорию делят на соты, чтобы использовать одни и те же частоты много раз. Телефон постоянно меряет силу сигнала своей и соседних сот (RSRP). Когда соседняя становится заметно сильнее, сеть переключает вас на ходу, без разрыва звонка. На модели абонент едет по городу, числа справа рассчитаны по модели затухания для городской застройки.</p>
@@ -450,6 +471,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
     <div class="plate-head">
       <div>
         <p class="eyebrow">Таблица <b>VI</b> · неназемные сети (NTN)</p>
+        <button type="button" class="listen" data-seg="s12"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать раздел</button>
         <h2>Анатомия <em>спутника</em></h2>
       </div>
       <p>Спутник — это базовая станция или ретранслятор, вынесенные в космос. Низкоорбитальные аппараты (LEO) летят со скоростью около 7,6 км/с и сменяют друг друга над абонентом каждые несколько минут. Поэтому их тысячи, и они передают трафик друг другу лазерами.</p>
@@ -483,6 +505,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
     <div class="plate-head">
       <div>
         <p class="eyebrow">Таблица <b>VII</b> · безопасность</p>
+        <button type="button" class="listen" data-seg="s14"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать раздел</button>
         <h2>Почему возможен <em>перехват</em></h2>
       </div>
       <p>Радио слышат все в зоне приёма, поэтому защита держится на криптографии и на взаимной проверке «телефон ↔ сеть». Перехват возможен там, где этой проверки нет (2G), где шифрование слабое, где телефон раскрывает свой идентификатор до включения защиты, или где атакуют не эфир, а саму сеть оператора. На модели показан самый известный сценарий: ложная базовая станция.</p>
@@ -533,6 +556,7 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
     <div class="plate-head">
       <div>
         <p class="eyebrow">Приложение · эволюция</p>
+        <button type="button" class="listen" data-seg="s17"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.6a6 6 0 0 1 0 8.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать раздел</button>
         <h2>Поколения: <em>1G → 5G</em></h2>
       </div>
       <p>Каждое поколение меняло способ делить эфир между абонентами: по частоте, по времени, по коду, по поднесущим и наконец по лучам в пространстве. Ядро сети при этом перешло с коммутации каналов на IP.</p>
@@ -569,7 +593,10 @@ section.plate,.prose,.cards,header.hero{scroll-margin-top:60px}
   <div class="gl"><b>Аудиогид</b><div class="bar" id="g-bar" role="progressbar" aria-label="Прогресс аудиогида"><i id="g-fill"></i></div><span id="g-time">0:00 / 5:43</span></div>
 </div>
 <div class="gsub" id="g-sub" hidden></div>
-<audio id="g-audio" preload="metadata" src="audio/narration.mp3"></audio>
+<audio id="g-audio" preload="metadata" playsinline>
+  <source src="audio/narration.mp3" type="audio/mpeg">
+  <source src="https://raw.githubusercontent.com/qazaqboss/mobilenet/claude/sweet-bardeen-inzg8o/audio/narration.mp3" type="audio/mpeg">
+</audio>
 
 <script src="vendor/three/three.min.js"></script>
 <script src="vendor/three/OrbitControls.js"></script>
@@ -1374,7 +1401,23 @@ else loop();
   const fmt = x => `${Math.floor(x/60)}:${String(Math.floor(x%60)).padStart(2,'0')}`;
   let curSeg = null;
   const PLAY = '<path d="M4 2.5v11l9-5.5z"/>', PAUSE = '<path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/>';
-  btn.addEventListener('click', () => { if (au.paused) au.play().catch(()=>{}); else au.pause(); });
+  const fail = () => { tm.textContent = 'Звук не загрузился — обновите страницу'; tm.classList.add('g-err'); };
+  const start = () => au.play().catch(err => { if (err && err.name !== 'AbortError') fail(); });
+  btn.addEventListener('click', () => { if (au.paused) start(); else au.pause(); });
+  au.addEventListener('error', fail, true);
+  au.querySelectorAll('source')[1].addEventListener('error', fail);
+  const seekTo = t => { const go = () => { au.currentTime = t; curSeg = null; start(); }; if (au.readyState >= 1) go(); else { au.load(); au.addEventListener('loadedmetadata', go, { once:true }); start(); } };
+  document.querySelectorAll('[data-seg]').forEach(b => b.addEventListener('click', () => {
+    const g = G.find(x => x[1] === b.dataset.seg); if (!g) return;
+    if (!au.paused && b.classList.contains('on')) { au.pause(); return; }
+    seekTo(g[0]);
+  }));
+  const mark = () => { const playing = !au.paused; let seg = G[0]; for (const g of G) if (au.currentTime >= g[0]) seg = g;
+    const startOf = id => G.findIndex(x => x[1] === id);
+    document.querySelectorAll('[data-seg]').forEach(b => { const i = startOf(b.dataset.seg), j = startOf(seg[1]);
+      const next = [...document.querySelectorAll('[data-seg]')].map(x => startOf(x.dataset.seg)).filter(k => k > i).sort((a,b)=>a-b)[0] ?? G.length;
+      b.classList.toggle('on', playing && j >= i && j < next); }); };
+  au.addEventListener('timeupdate', mark); au.addEventListener('pause', mark); au.addEventListener('play', mark);
   au.addEventListener('play', () => { ico.innerHTML = PAUSE; btn.setAttribute('aria-label','Пауза'); sub.hidden = false; curSeg = null; });
   au.addEventListener('pause', () => { ico.innerHTML = PLAY; btn.setAttribute('aria-label','Слушать аудиогид'); });
   au.addEventListener('ended', () => { sub.hidden = true; });
